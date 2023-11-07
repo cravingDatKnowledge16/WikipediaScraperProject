@@ -11,13 +11,3 @@ url = input("Enter url: ")
 openPage = urllib.request.urlopen(url)
 preText = BeautifulSoup(openPage, "html.parser")
 
-def appendItemsRecursivly(startParentElement,recursionLevel):
-    bufferStorage = dict()
-    childElementIndex = 0
-    currentParentElement = startParentElement
-    for recursionCounter in recursionLevel:
-        for childElement in currentParentElement:
-            bufferStorage[f"{childElementIndex}"] = childElement
-            childElementIndex+=1
-        childElementIndex = 0
-            
