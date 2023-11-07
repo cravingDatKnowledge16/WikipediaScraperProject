@@ -13,7 +13,7 @@ with open('test.txt', 'r') as file:
 wordArray = text.split()
 finalWordArray = []
 for i in range (0, len(wordArray)):
-    finalWordArray.append(re.sub(r"[^a-zA-Z0-9 äöüÄÖÜ]", "", wordArray[i]))
+    finalWordArray.append(re.sub(r"[^a-zA-Z0-9 äöüÄÖÜß]", "", wordArray[i]))
 
 # 2. Matrix erstellen, in der je die Zahl und dann das Wort steht.
 # Bei jedem hinzufügen eines Wortes wird geschaut, ob dieses schon in der Matrix ist.

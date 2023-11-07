@@ -10,8 +10,8 @@ zeitpunkt1 = time.perf_counter()
 
 url = input("Link eingeben: ")
 
-open_page = urllib.request.urlopen(url)
-preText = BeautifulSoup(open_page, "html.parser")
+openPage = urllib.request.urlopen(url)
+preText = BeautifulSoup(openPage, "html.parser")
 
 # Extrahiere den Text aus dem ResultSet-Objekt
 text = ""
@@ -27,5 +27,6 @@ plt.imshow(wc, interpolation="bilinear")
 
 zeitpunkt2 = time.perf_counter()
 print(f"Dauer: {zeitpunkt2 - zeitpunkt1} sekunden")
+
 
 plt.show()
