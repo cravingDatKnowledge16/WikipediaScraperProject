@@ -2,6 +2,8 @@ import urllib.request
 from bs4 import BeautifulSoup
 import array as arr
 import re
+#from multiprocessing import Pool, cpu_count
+#p = Pool
 
 def scrapeLinks(url):
     linkArray = []
@@ -41,21 +43,29 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
     #Arrays erstellen
     currentLinkArray = []
     previousLinkArray = []
-    globalLinkArray = []
+    globalLinkSet = set()
     previousLinkArray.append(startLink)
-    globalLinkArray.append(startLink)
+    globalLinkSet.add(startLink)
     
     #Äußere for Schleife pro Layer: 
     for i in range(0, numberOfTimes):
-         
-         for i2 in range(0, len(previousLinkArray)):
-              temp = scrapeLinks(previousLinkArray[i2])
-              for i3 in range(0, len(globalLinkArray)):
-                   if(globalLinkArray[i3] != temp):
-                        previousLinkArray.append(temp)
-                        globalLinkArray.append(temp)
+        #Alle Links aus den in der vorherigen Layer gescrapeden
+        #Websites nacheinander auswählen
+        for prevLink in previousLinkArray:
+            print(f"https://de.wikipedia.org{prevLink}")
+            temp = scrapeLinks(f"https://de.wikipedia.org{prevLink}")
+            #Den einzelnen Link mit dem globalLinkArray abgleichen,
+            #wenn er nicht schon drin ist, wird er hinzugefügt:
+            for temp_entry in temp:
+                if temp_entry not in globalLinkSet:
+                    currentLinkArray.append(temp_entry)
+                    globalLinkSet.add(temp_entry)
+        #current in previous pushen
+        previousLinkArray = currentLinkArray.copy()
+        currentLinkArray = []
+    saveToTXT(globalLinkSet, "ScraperV3Result-no1")
+        
                     
-
 
 
 #layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
@@ -63,3 +73,5 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
 #for element in range(len(layer1)):
 #    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
 
+
+scrapeLinksNotOrdered(2, "/wiki/Arca_zebra")
