@@ -44,13 +44,15 @@ def extractFromDictRecursivly(startElement,layerDepth):
     allLinks = dict()
     allLinks[currLayerPosition] = startElement
     for currLayer in layerDepth:
-        for currDictPosition in allLinks:
-            #if(currDictPosition==extractNumbers(currLayerPosition)):
+        #currDictEntries = list(allLinks.items())
+        #for x in len(currDictEntries):
+        for currDictPosition in len(allLinks):
+            if(list(allLinks.keys())[currDictPosition] ==len(extractNumbers(currLayerPosition))):
             print()
                 
 def extractNumbers(text):
     allNumbers = re.findall("\d+",text)
-    return len(allNumbers)
+    return allNumbers
 
 #file = open('saveValues.txt', 'r')
 
@@ -58,4 +60,11 @@ def extractNumbers(text):
 #print(layer1)
 #for element in range(len(layer1)):
 #    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
+obj = {
+    "1":"tzt",
+    "3":"jkjl"
+}
 
+print(obj)
+for x in obj:
+    print(x)
