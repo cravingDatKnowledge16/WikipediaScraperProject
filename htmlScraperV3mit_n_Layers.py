@@ -56,3 +56,5 @@ layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
 #print(layer1)
 for element in range(len(layer1)):
     saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
+
+#
