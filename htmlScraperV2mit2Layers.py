@@ -45,7 +45,7 @@ def extractFromDictRecursivly(startElement,layerDepth):
     allLinks[currLayerPosition] = startElement
     for currLayer in layerDepth:
         for currDictPosition in len(allLinks):
-            
+            print()
             
 
 
