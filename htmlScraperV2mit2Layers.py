@@ -39,15 +39,13 @@ def saveToTXT(wantedLinksList, topDoc):
                 temp_file.write("%s\n"                                                       % item)
                 temp_file.close
 
-def appendItemsRecursivly(startParentElement,recursionLevel):
-    bufferStorage = dict()
-    childElementIndex = 0
-    currentParentElement = startParentElement
-    for recursionCounter in recursionLevel:
-        for childElement in currentParentElement:
-            bufferStorage[f"{childElementIndex}"] = childElement
-            childElementIndex+=1
-        childElementIndex = 0
+def extractFromDictRecursivly(startElement,layerDepth):
+    currLayerPosition = "0"
+    allLinks = dict()
+    allLinks[currLayerPosition] = startElement
+    for currLayer in layerDepth:
+        for currDictPosition in len(allLinks):
+            
             
 
 
