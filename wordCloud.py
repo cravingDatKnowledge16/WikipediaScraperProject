@@ -6,7 +6,7 @@ from wordcloud import WordCloud
 
 zeitpunkt1 = time.perf_counter()
 #1. Text lesen, bei jedem Leerzeichen neuen Array Punkt erstellen
-with open('test.txt', 'r') as file:
+with open('results/ScraperV3Result_no1.txt', 'r') as file:
     text = file.read()
 #text = ""
 #text = input("Text eingeben: ")

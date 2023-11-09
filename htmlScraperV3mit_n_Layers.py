@@ -1,14 +1,28 @@
+from os import error
 import urllib.request
 from bs4 import BeautifulSoup
 import array as arr
 import re
+import time
+import sys
+from requests import HTTPError
+import tqdm
+
+errorCounter = 0
 #from multiprocessing import Pool, cpu_count
 #p = Pool
 
+zeitpunkt1 = time.perf_counter()
 def scrapeLinks(url):
     linkArray = []
 
-    open_page = urllib.request.urlopen(url)
+    try:
+        open_page = urllib.request.urlopen(url)
+    except urllib.error.HTTPError:
+        print(f"Couldn't load {url}, skipping.", file=sys.stderr)
+        errorCounter = errorCounter+1
+        return []
+
     soup = BeautifulSoup(open_page, "html.parser")
     #print(soup)
 
@@ -25,7 +39,7 @@ def scrapeLinks(url):
 
     wantedLinks = set([link for link in linkArray if (("Datei:" not in link) & ("/wiki/" in link) & ("Hilfe:" not in link) & ("Wikipedia:" not in link) & ("Spezial:" not in link) & ("https:" not in link))])
     wantedLinksList = list(wantedLinks)
-    #saveToTXT(wantedLinks)
+    
     return wantedLinksList
 
 
@@ -74,4 +88,6 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
 #    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
 
 
-scrapeLinksNotOrdered(2, "/wiki/Arca_zebra")
+scrapeLinksNotOrdered(1, "/wiki/CCC")
+zeitpunkt2 = time.perf_counter()
+print(f"Dauer: {zeitpunkt2-zeitpunkt1} Fehler: {errorCounter}")
