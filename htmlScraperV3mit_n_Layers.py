@@ -38,23 +38,28 @@ def saveToTXT(wantedLinksList, topDoc):
 #file = open('saveValues.txt', 'r')
 
 def scrapeLinksNotOrdered(numberOfTimes, startLink):
+    #Arrays erstellen
     currentLinkArray = []
     previousLinkArray = []
     globalLinkArray = []
     previousLinkArray.append(startLink)
     globalLinkArray.append(startLink)
+    
+    #Äußere for Schleife pro Layer: 
     for i in range(0, numberOfTimes):
+         
          for i2 in range(0, len(previousLinkArray)):
               temp = scrapeLinks(previousLinkArray[i2])
               for i3 in range(0, len(globalLinkArray)):
                    if(globalLinkArray[i3] != temp):
                         previousLinkArray.append(temp)
+                        globalLinkArray.append(temp)
+                    
 
 
 
-layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
+#layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
 #print(layer1)
-for element in range(len(layer1)):
-    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
+#for element in range(len(layer1)):
+#    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
 
-#
