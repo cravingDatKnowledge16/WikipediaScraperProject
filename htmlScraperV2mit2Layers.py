@@ -41,12 +41,15 @@ def saveToTXT(wantedLinksList, topDoc):
                 temp_file.write("%s\n"                                                       % item)
                 temp_file.close
 
-def extractFromDictRecursivly(start_element,layerDepth):
+def extractLinksRecursivly(start_element,layerDepth):
+    
+    #extracts the sublinks of a Wikipedia-link recusively
+    
     allPre_layers = "0"
     pre_layer_elementsPositions = list()
     pre_layer_elementsPositions[0] = 0
     currLayerElement_key_list = list()
-    currLayerHREF_list = list()
+    currLayerHREF_matrix = list()
     mainDict = dict()
     mainDict[pre_layer_elementsPositions] = start_element
     for currLayer in range(layerDepth): #for every layer do:
@@ -57,16 +60,16 @@ def extractFromDictRecursivly(start_element,layerDepth):
                 currLayerElement_key_list.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
 
         for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
-            currLayerHREF_list[currPositionOfPre_layer_elements] = scrapeLinks(currLayerElement_key_list[currPositionOfPre_layer_elements])
+            currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(currLayerElement_key_list[currPositionOfPre_layer_elements])
             
-        for preLayerHREF_element_index in range(len(currLayerHREF_list)):
-            for currLayerHREF_element_index in currLayerHREF_list[preLayerHREF_element_index]:
-                mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_list[preLayerHREF_element_index][currLayerHREF_element_index]
+        for preLayerHREF_element_index in range(len(currLayerHREF_matrix)):
+            for currLayerHREF_element_index in currLayerHREF_matrix[preLayerHREF_element_index]:
+                mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_matrix[preLayerHREF_element_index][currLayerHREF_element_index]
                 
         allPre_layers+=",0"
-        pre_layer_elementsPositions = range(len(currLayerHREF_list))
+        pre_layer_elementsPositions = range(len(currLayerHREF_matrix))
         currLayerElement_key_list = list()
-        currLayerHREF_list = list()
+        currLayerHREF_matrix = list()
 
                 
 def extractNumberAmount(text):
