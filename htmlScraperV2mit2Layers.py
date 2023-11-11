@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import array as arr
 import re
 import datetime
+
+from numpy import iterable
 #import highcharts
 
 
@@ -33,7 +35,7 @@ def scrapeLinks(url):
 
 
 def saveToTXT(wantedLinksList, topDoc):
-    newTopDoc = re.sub('[^a-zA-Z0-9 \n\.]', '_', topDoc)
+    newTopDoc = re.sub(r'[^a-zA-Z0-9 \n\.]', '_', topDoc)
     with open(f'results/{newTopDoc}.txt', 'w') as temp_file:
             for item in wantedLinksList:
                 temp_file.write("%s\n"                                                       % item)
@@ -41,19 +43,24 @@ def saveToTXT(wantedLinksList, topDoc):
 
 def extractFromDictRecursivly(startElement,layerDepth):
     currLayerPosition = "0"
+    currLayerElementKeyList = list()
+    currLayerHREFlist = list()
     allLinks = dict()
     allLinks[currLayerPosition] = startElement
+    #print(list(allLinks))
     for currLayer in range(layerDepth):
         #currDictEntries = list(allLinks.items())
         #for x in len(currDictEntries):
         allDictKeys = list(allLinks.keys())
-        for currElement in range(allLinks):
-            if(extractNumberAmount(allDictKeys[currElement]) == extractNumberAmount(currLayer)):
-                
-                pass
+        for currElementKeyIndex in range(len(allDictKeys)):
+            if(extractNumberAmount(allDictKeys[currElementKeyIndex]) == currLayer):
+                currLayerElementKeyList.append(allDictKeys[currElementKeyIndex])        
+        for currLayerElementKeyIndex in range(len(currLayerElementKeyList)):
+            currLayerHREFlist[currLayerElementKeyIndex] = scrapeLinks(currLayerElementKeyList[currLayerElementKeyIndex])
+            #allLinks[currLayerPosition+f",{currLayerElementKeyIndex}"]
                 
 def extractNumberAmount(text):
-    allNumbers = re.findall("\d+",text)
+    allNumbers = re.findall(r"\d+",text)
     return len(allNumbers)
 
 #file = open('saveValues.txt', 'r')
@@ -70,3 +77,4 @@ obj = {
 print(extractNumberAmount("9079,083,9,1542,23"))
 for x in obj:
     print(x)
+#extractFromDictRecursivly("hoirhoifh",2)

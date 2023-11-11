@@ -1,4 +1,4 @@
 import numpy
 
-i = numpy.Infinity
-print(i/i)
+i = numpy
+print(i)
