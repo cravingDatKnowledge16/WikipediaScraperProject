@@ -43,12 +43,13 @@ def extractFromDictRecursivly(startElement,layerDepth):
     currLayerPosition = "0"
     allLinks = dict()
     allLinks[currLayerPosition] = startElement
-    for currLayer in layerDepth:
+    for currLayer in range(layerDepth):
         #currDictEntries = list(allLinks.items())
         #for x in len(currDictEntries):
-        for currDictPosition in len(allLinks):
-            if(list(allLinks.keys())[currDictPosition] ==len(extractNumbers(currLayerPosition))):
-            print()
+        for currDictPosition in allLinks:
+            if(list(allLinks.keys())[currDictPosition] == len(extractNumbers(currLayer))):
+                
+                pass
                 
 def extractNumbers(text):
     allNumbers = re.findall("\d+",text)
@@ -65,6 +66,6 @@ obj = {
     "3":"jkjl"
 }
 
-print(obj)
+print(range(0,4,2))
 for x in obj:
     print(x)
