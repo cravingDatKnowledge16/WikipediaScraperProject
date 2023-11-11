@@ -43,7 +43,8 @@ def saveToTXT(wantedLinksList, topDoc):
 
 def extractFromDictRecursivly(start_element,layerDepth):
     allPre_layers = "0"
-    pre_layer_elementsPositions = list((0))
+    pre_layer_elementsPositions = list()
+    pre_layer_elementsPositions[0] = 0
     currLayerElement_key_list = list()
     currLayerHREF_list = list()
     mainDict = dict()
@@ -57,11 +58,15 @@ def extractFromDictRecursivly(start_element,layerDepth):
 
         for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
             currLayerHREF_list[currPositionOfPre_layer_elements] = scrapeLinks(currLayerElement_key_list[currPositionOfPre_layer_elements])
+            
         for preLayerHREF_element_index in range(len(currLayerHREF_list)):
             for currLayerHREF_element_index in currLayerHREF_list[preLayerHREF_element_index]:
                 mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_list[preLayerHREF_element_index][currLayerHREF_element_index]
+                
         allPre_layers+=",0"
         pre_layer_elementsPositions = range(len(currLayerHREF_list))
+        currLayerElement_key_list = list()
+        currLayerHREF_list = list()
 
                 
 def extractNumberAmount(text):
@@ -70,19 +75,20 @@ def extractNumberAmount(text):
 
 def listToString(list):
     return re.sub(r"[\s\[\]]","",str(list))
-
+print(listToString(list((1,98,28,"njue"))))
 #file = open('saveValues.txt', 'r')
 
 #layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
 #print(layer1)
 #for element in range(len(layer1)):
 #    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
-obj = {
-    "1":"tzt",
-    "3":"jkjl"
-}
-
+arr = [1,2,3]
+obj = set(arr)
+obj[4] = 4
+print(obj)
+"""
 print(extractNumberAmount("9079,083,9,1542,23"))
 for x in obj:
     print(x)
 #extractFromDictRecursivly("hoirhoifh",2)
+"""
