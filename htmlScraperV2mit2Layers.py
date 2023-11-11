@@ -69,7 +69,7 @@ def extractLinksRecursivly(start_element,layerDepth):
             for currLayerHREF_element_index in currLayerHREF_matrix[preLayerHREF_element_index]:
                 if(currLayerHREF_element_index):
                     mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_matrix[preLayerHREF_element_index][currLayerHREF_element_index]
-                
+              
         allPre_layers+=",0"
         pre_layer_elementsPositions = range(len(currLayerHREF_matrix))
         preLayerElement_key_list = list()
