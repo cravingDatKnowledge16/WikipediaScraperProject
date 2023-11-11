@@ -8,13 +8,14 @@ from numpy import iterable
 #import highcharts
 
 
+
 #url = "https://de.wikipedia.org/wiki/Chaos_Computer_Club"
 
 def scrapeLinks(url):
     linkArray = []
 
-    open_page = urllib.request.urlopen(url)
-    soup = BeautifulSoup(open_page, "html.parser")
+    openPage = urllib.request.urlopen(url)
+    soup = BeautifulSoup(openPage, "html.parser")
     #print(soup)
 
     mw_parser_output = soup.find_all(class_="mw-parser-output")
@@ -36,10 +37,10 @@ def scrapeLinks(url):
 
 def saveToTXT(wantedLinksList, topDoc):
     newTopDoc = re.sub(r'[^a-zA-Z0-9 \n\.]', '_', topDoc)
-    with open(f'results/{newTopDoc}.txt', 'w') as temp_file:
+    with open(f'results/{newTopDoc}.txt', 'w') as tempFile:
             for item in wantedLinksList:
-                temp_file.write("%s\n"                                                       % item)
-                temp_file.close
+                tempFile.write("%s\n"                                                       % item)
+                tempFile.close
 
 def extractLinksRecursivly(start_element,layerDepth):
     
@@ -49,6 +50,7 @@ def extractLinksRecursivly(start_element,layerDepth):
     pre_layer_elementsPositions = list()
     pre_layer_elementsPositions[0] = 0
     currLayerElement_key_list = list()
+    currLayerElement_value_list = list()
     currLayerHREF_matrix = list()
     mainDict = dict()
     mainDict[pre_layer_elementsPositions] = start_element
@@ -58,13 +60,15 @@ def extractLinksRecursivly(start_element,layerDepth):
         for mainDict_key_index in range(len(mainDict_keys)): #for every key from the main dict do:
             if(extractNumberAmount(mainDict_keys[mainDict_key_index]) == currLayer+1): 
                 currLayerElement_key_list.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
-
+        for mainDict_key_index in currLayerElement_key_list:
+            currLayerElement_value_list.append(mainDict[mainDict_key_index])
         for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
             currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(currLayerElement_key_list[currPositionOfPre_layer_elements])
             
         for preLayerHREF_element_index in range(len(currLayerHREF_matrix)):
             for currLayerHREF_element_index in currLayerHREF_matrix[preLayerHREF_element_index]:
-                mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_matrix[preLayerHREF_element_index][currLayerHREF_element_index]
+                if(currLayerHREF_element_index):
+                    mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_matrix[preLayerHREF_element_index][currLayerHREF_element_index]
                 
         allPre_layers+=",0"
         pre_layer_elementsPositions = range(len(currLayerHREF_matrix))
@@ -85,10 +89,8 @@ print(listToString(list((1,98,28,"njue"))))
 #print(layer1)
 #for element in range(len(layer1)):
 #    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
-arr = [1,2,3]
-obj = set(arr)
-obj[4] = 4
-print(obj)
+
+obj = dict((name=213,un="ufeu"))
 """
 print(extractNumberAmount("9079,083,9,1542,23"))
 for x in obj:
