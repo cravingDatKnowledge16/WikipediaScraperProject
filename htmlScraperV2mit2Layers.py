@@ -46,14 +46,15 @@ def extractFromDictRecursivly(startElement,layerDepth):
     for currLayer in range(layerDepth):
         #currDictEntries = list(allLinks.items())
         #for x in len(currDictEntries):
-        for currDictPosition in allLinks:
-            if(list(allLinks.keys())[currDictPosition] == len(extractNumbers(currLayer))):
+        allDictKeys = list(allLinks.keys())
+        for currElement in range(allLinks):
+            if(extractNumberAmount(allDictKeys[currElement]) == extractNumberAmount(currLayer)):
                 
                 pass
                 
-def extractNumbers(text):
+def extractNumberAmount(text):
     allNumbers = re.findall("\d+",text)
-    return allNumbers
+    return len(allNumbers)
 
 #file = open('saveValues.txt', 'r')
 
@@ -66,6 +67,6 @@ obj = {
     "3":"jkjl"
 }
 
-print(range(0,4,2))
+print(extractNumberAmount("9079,083,9,1542,23"))
 for x in obj:
     print(x)
