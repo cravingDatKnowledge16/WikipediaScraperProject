@@ -41,27 +41,35 @@ def saveToTXT(wantedLinksList, topDoc):
                 temp_file.write("%s\n"                                                       % item)
                 temp_file.close
 
-def extractFromDictRecursivly(startElement,layerDepth):
-    currLayerPosition = "0"
-    currLayerElementKeyList = list()
-    currLayerHREFlist = list()
-    allLinks = dict()
-    allLinks[currLayerPosition] = startElement
-    #print(list(allLinks))
-    for currLayer in range(layerDepth):
-        #currDictEntries = list(allLinks.items())
-        #for x in len(currDictEntries):
-        allDictKeys = list(allLinks.keys())
-        for currElementKeyIndex in range(len(allDictKeys)):
-            if(extractNumberAmount(allDictKeys[currElementKeyIndex]) == currLayer):
-                currLayerElementKeyList.append(allDictKeys[currElementKeyIndex])        
-        for currLayerElementKeyIndex in range(len(currLayerElementKeyList)):
-            currLayerHREFlist[currLayerElementKeyIndex] = scrapeLinks(currLayerElementKeyList[currLayerElementKeyIndex])
-            #allLinks[currLayerPosition+f",{currLayerElementKeyIndex}"]
+def extractFromDictRecursivly(start_element,layerDepth):
+    allPre_layers = "0"
+    pre_layer_elementsPositions = list((0))
+    currLayerElement_key_list = list()
+    currLayerHREF_list = list()
+    mainDict = dict()
+    mainDict[pre_layer_elementsPositions] = start_element
+    for currLayer in range(layerDepth): #for every layer do:
+        mainDict_keys = list(mainDict.keys()) #copy every key from mainDict to the list mainDict_keys
+
+        for mainDict_key_index in range(len(mainDict_keys)): #for every key from the main dict do:
+            if(extractNumberAmount(mainDict_keys[mainDict_key_index]) == currLayer+1): 
+                currLayerElement_key_list.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
+
+        for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
+            currLayerHREF_list[currPositionOfPre_layer_elements] = scrapeLinks(currLayerElement_key_list[currPositionOfPre_layer_elements])
+        for preLayerHREF_element_index in range(len(currLayerHREF_list)):
+            for currLayerHREF_element_index in currLayerHREF_list[preLayerHREF_element_index]:
+                mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_list[preLayerHREF_element_index][currLayerHREF_element_index]
+        allPre_layers+=",0"
+        pre_layer_elementsPositions = range(len(currLayerHREF_list))
+
                 
 def extractNumberAmount(text):
-    allNumbers = re.findall(r"\d+",text)
+    allNumbers = re.findall(r"\d+",str(text))
     return len(allNumbers)
+
+def listToString(list):
+    return re.sub(r"[\s\[\]]","",str(list))
 
 #file = open('saveValues.txt', 'r')
 
