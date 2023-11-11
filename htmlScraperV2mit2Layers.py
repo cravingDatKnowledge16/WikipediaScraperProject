@@ -49,8 +49,8 @@ def extractLinksRecursivly(start_element,layerDepth):
     allPre_layers = "0"
     pre_layer_elementsPositions = list()
     pre_layer_elementsPositions[0] = 0
-    currLayerElement_key_list = list()
-    currLayerElement_value_list = list()
+    preLayerElement_key_list = list()
+    preLayerElement_value_list = list()
     currLayerHREF_matrix = list()
     mainDict = dict()
     mainDict[pre_layer_elementsPositions] = start_element
@@ -59,11 +59,11 @@ def extractLinksRecursivly(start_element,layerDepth):
 
         for mainDict_key_index in range(len(mainDict_keys)): #for every key from the main dict do:
             if(extractNumberAmount(mainDict_keys[mainDict_key_index]) == currLayer+1): 
-                currLayerElement_key_list.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
-        for mainDict_key_index in currLayerElement_key_list:
-            currLayerElement_value_list.append(mainDict[mainDict_key_index])
+                preLayerElement_key_list.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
+        for mainDict_key_index in preLayerElement_key_list:
+            preLayerElement_value_list.append(mainDict.get(mainDict_key_index))
         for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
-            currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(currLayerElement_key_list[currPositionOfPre_layer_elements])
+            currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(preLayerElement_key_list[currPositionOfPre_layer_elements])
             
         for preLayerHREF_element_index in range(len(currLayerHREF_matrix)):
             for currLayerHREF_element_index in currLayerHREF_matrix[preLayerHREF_element_index]:
@@ -72,7 +72,7 @@ def extractLinksRecursivly(start_element,layerDepth):
                 
         allPre_layers+=",0"
         pre_layer_elementsPositions = range(len(currLayerHREF_matrix))
-        currLayerElement_key_list = list()
+        preLayerElement_key_list = list()
         currLayerHREF_matrix = list()
 
                 
