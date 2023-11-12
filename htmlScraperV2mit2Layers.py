@@ -76,10 +76,10 @@ def extractLinksRecursivly(start_element,layerDepth):
         #scrape the links from the previous layer and write them onto a temporary matrix
         HREFmatrix_writeSublinks = [scrapeLinks(preLayElemPos_writeNextLay[preEl]) for preEl in preLayElemPos_writeNextLay]
         #copy all links from current layer onto the main dictionairies 
-        for preLayerHREF_element_index in range(len(HREFmatrix_writeSublinks)):
-            for currLayerHREF_element_index in HREFmatrix_writeSublinks[preLayerHREF_element_index]:
-                if(currLayerHREF_element_index):
-                    mainDict[allPreLayers_getPos+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = HREFmatrix_writeSublinks[preLayerHREF_element_index][currLayerHREF_element_index]
+        for preLayEl in range(len(HREFmatrix_writeSublinks)):
+            for currLayEl in HREFmatrix_writeSublinks[preLayEl]:
+                #if(currLayEl):
+                mainDict[allPreLayers_getPos+f",{preLayEl}"+f",{currLayEl}"] = HREFmatrix_writeSublinks[preLayEl][currLayEl]
         #eliminate all duplicates to avoid recursion collision         
         for mainDict_items in list(mainDict.items()):
             mainDict_item_count = list(mainDict.values()).count(mainDict_items[1])
