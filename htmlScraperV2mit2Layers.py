@@ -60,41 +60,41 @@ def extractLinksRecursivly(start_element,layerDepth):
     
     #extracts the sublinks of a Wikipedia-link recusively
     
-    allPre_layers = "0"
-    preLayerElements_elementsPositions = list()
-    preLayerElements_elementsPositions[0] = 0
-    preLayerAllKeys = list()
-    preLayerAllValues = list()
-    currLayerHREF_matrix = list()
+    allPreLayers_getPos = "0"
+    preLayElemPos_writeNextLay = list()
+    preLayElemPos_writeNextLay[0] = 0
+    preLayAllKeys_knowParentKeys = list()
+    preLayAllValues_knowParentValues = list()
+    currLayHREFmatrix_writeSublinks = list()
     mainDict = dict()
-    mainDict[preLayerElements_elementsPositions] = start_element
+    mainDict[preLayElemPos_writeNextLay] = start_element
     for currLayer in range(layerDepth): #for every layer do:
         mainDict_keys = list(mainDict.keys()) #copy every key from mainDict to the list mainDict_keys
 
         for mainDict_key_index in range(len(mainDict_keys)): #for every key from the main dict do:
             if(extractNumberAmount(mainDict_keys[mainDict_key_index]) == currLayer+1): 
-                preLayerAllKeys.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
-        for mainDict_key_index in preLayerAllKeys:
-            preLayerAllValues.append(mainDict.get(mainDict_key_index))
-        for currPositionOfPre_layer_elements in preLayerElements_elementsPositions:
-            currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(preLayerAllKeys[currPositionOfPre_layer_elements])
+                preLayAllKeys_knowParentKeys.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
+        for mainDict_key_index in preLayAllKeys_knowParentKeys:
+            preLayAllValues_knowParentValues.append(mainDict.get(mainDict_key_index))
+        for currPositionOfPre_layer_elements in preLayElemPos_writeNextLay:
+            currLayHREFmatrix_writeSublinks[currPositionOfPre_layer_elements] = scrapeLinks(preLayAllKeys_knowParentKeys[currPositionOfPre_layer_elements])
             
-        for preLayerHREF_element_index in range(len(currLayerHREF_matrix)):
-            for currLayerHREF_element_index in currLayerHREF_matrix[preLayerHREF_element_index]:
+        for preLayerHREF_element_index in range(len(currLayHREFmatrix_writeSublinks)):
+            for currLayerHREF_element_index in currLayHREFmatrix_writeSublinks[preLayerHREF_element_index]:
                 if(currLayerHREF_element_index):
-                    mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_matrix[preLayerHREF_element_index][currLayerHREF_element_index]
+                    mainDict[allPreLayers_getPos+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayHREFmatrix_writeSublinks[preLayerHREF_element_index][currLayerHREF_element_index]
                     
         for mainDict_items in list(mainDict.items()):
             mainDict_item_count = list(mainDict.values()).count(mainDict_items[1])
             if(mainDict_item_count >= 2): #if a value occurs more than 2 times
-                toPopIndices = [i for i, x in enumerate(preLayerAllKeys) if x == mainDict_items[0]]
+                toPopIndices = [i for i, x in enumerate(preLayAllKeys_knowParentKeys) if x == mainDict_items[0]]
                 for popElement in toPopIndices:
                     mainDict.pop(popElement)
                 
-        allPre_layers+=",0"
-        preLayerElements_elementsPositions = range(len(currLayerHREF_matrix))
-        preLayerAllKeys = list()
-        currLayerHREF_matrix = list()
+        allPreLayers_getPos+=",0"
+        preLayElemPos_writeNextLay = range(len(currLayHREFmatrix_writeSublinks))
+        preLayAllKeys_knowParentKeys = list()
+        currLayHREFmatrix_writeSublinks = list()
 
                 
 def extractNumberAmount(text):
