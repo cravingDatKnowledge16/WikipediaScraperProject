@@ -3,8 +3,11 @@ RULES:
 
 1. variable-name: data about the value + "_" + function of the value
 
-2.
+2. create as few side-effects as possible 
 
+3.1. comment above block: describe the function of the code-block
+
+3.2. comment after the line: describe the function of the line (for details)
 
 """
 
