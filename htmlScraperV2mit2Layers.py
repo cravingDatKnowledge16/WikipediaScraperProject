@@ -62,28 +62,31 @@ def extractLinksRecursivly(start_element,layerDepth):
     
     allPreLayers_getPos = "0"
     preLayElemPos_writeNextLay = list()
-    preLayElemPos_writeNextLay[0] = 0
+    preLayElemPos_writeNextLay.append(0)
     preLayAllKeys_knowParentKeys = list()
     preLayAllValues_knowParentValues = list()
-    currLayHREFmatrix_writeSublinks = list()
+    HREFmatrix_writeSublinks = list()
     mainDict = dict()
-    mainDict[preLayElemPos_writeNextLay] = start_element
+    mainDict[allPreLayers_getPos] = start_element
     for currLayer in range(layerDepth): #for every layer do:
-        mainDictKeys = list(mainDict.keys()) #copy every key from mainDict to the list mainDictKeys
-
-        for mainDictKeyIndices in range(len(mainDictKeys)): #for every key from the main dict do:
-            if(extractNumberAmount(mainDictKeys[mainDictKeyIndices]) == currLayer+1): 
-                preLayAllKeys_knowParentKeys.append(mainDictKeys[mainDictKeyIndices]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
-        for mainDictKeyIndices in preLayAllKeys_knowParentKeys:
-            preLayAllValues_knowParentValues.append(mainDict.get(mainDictKeyIndices))
+        mainDictItems = [list(item) for item in list(mainDict.items())]
+        preLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLayer+1)]
+        preLayAllKeys_knowParentKeys = [item[0] for item in preLayAllItems_knowItemParents]
+        preLayAllValues_knowParentKeys = [item[1] for item in preLayAllItems_knowItemParents]
+    
+        #return preLayAllKeys_knowParentKeys
+      
+        #scrape the links from the previous layer and write them onto a temporary matrix
         for currPositionOfPre_layer_elements in preLayElemPos_writeNextLay:
-            currLayHREFmatrix_writeSublinks[currPositionOfPre_layer_elements] = scrapeLinks(preLayAllKeys_knowParentKeys[currPositionOfPre_layer_elements])
+            HREFmatrix_writeSublinks[currPositionOfPre_layer_elements] = scrapeLinks(preLayAllKeys_knowParentKeys[currPositionOfPre_layer_elements])
             
-        for preLayerHREF_element_index in range(len(currLayHREFmatrix_writeSublinks)):
-            for currLayerHREF_element_index in currLayHREFmatrix_writeSublinks[preLayerHREF_element_index]:
+        HREFmatrix_writeSublinks = [scrapeLinks(preLayElemPos_writeNextLay[preEl]) for preEl in preLayElemPos_writeNextLay]
+        #copy all links from current layer onto the main dictionairies 
+        for preLayerHREF_element_index in range(len(HREFmatrix_writeSublinks)):
+            for currLayerHREF_element_index in HREFmatrix_writeSublinks[preLayerHREF_element_index]:
                 if(currLayerHREF_element_index):
-                    mainDict[allPreLayers_getPos+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayHREFmatrix_writeSublinks[preLayerHREF_element_index][currLayerHREF_element_index]
-                    
+                    mainDict[allPreLayers_getPos+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = HREFmatrix_writeSublinks[preLayerHREF_element_index][currLayerHREF_element_index]
+        #eliminate all duplicates to avoid recursion collision         
         for mainDict_items in list(mainDict.items()):
             mainDict_item_count = list(mainDict.values()).count(mainDict_items[1])
             if(mainDict_item_count >= 2): #if a value occurs more than 2 times
@@ -92,9 +95,9 @@ def extractLinksRecursivly(start_element,layerDepth):
                     mainDict.pop(popElement)
                 
         allPreLayers_getPos+=",0"
-        preLayElemPos_writeNextLay = range(len(currLayHREFmatrix_writeSublinks))
+        preLayElemPos_writeNextLay = range(len(HREFmatrix_writeSublinks))
         preLayAllKeys_knowParentKeys = list()
-        currLayHREFmatrix_writeSublinks = list()
+        HREFmatrix_writeSublinks = list()
 
                 
 def extractNumberAmount(text):
@@ -105,6 +108,8 @@ def listToString(list):
     return re.sub(r"[\s\[\]]","",str(list))
 print(listToString(list((1,98,28,"njue"))))
 #file = open('saveValues.txt', 'r')
+
+print(extractLinksRecursivly("fbirbi",2))
 
 #layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
 #print(layer1)
