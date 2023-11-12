@@ -92,6 +92,7 @@ def extractLinksRecursivly(start_element,layerDepth):
         preLayElemPos_writeNextLay = range(len(HREFmatrix_writeSublinks))
         preLayAllKeys_knowParentKeys = list()
         HREFmatrix_writeSublinks = list()
+    
 
                 
 def extractNumberAmount(text):
