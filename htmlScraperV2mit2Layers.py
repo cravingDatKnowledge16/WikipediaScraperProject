@@ -1,7 +1,7 @@
 """
 RULES: 
 
-1. variable-name: data about the value + "_" + function of the value
+1. variable-name definition: data about the value (optional: + "_" + function of the value)
 
 2. create as few side-effects as possible 
 
@@ -69,13 +69,13 @@ def extractLinksRecursivly(start_element,layerDepth):
     mainDict = dict()
     mainDict[preLayElemPos_writeNextLay] = start_element
     for currLayer in range(layerDepth): #for every layer do:
-        mainDict_keys = list(mainDict.keys()) #copy every key from mainDict to the list mainDict_keys
+        mainDictKeys = list(mainDict.keys()) #copy every key from mainDict to the list mainDictKeys
 
-        for mainDict_key_index in range(len(mainDict_keys)): #for every key from the main dict do:
-            if(extractNumberAmount(mainDict_keys[mainDict_key_index]) == currLayer+1): 
-                preLayAllKeys_knowParentKeys.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
-        for mainDict_key_index in preLayAllKeys_knowParentKeys:
-            preLayAllValues_knowParentValues.append(mainDict.get(mainDict_key_index))
+        for mainDictKeyIndices in range(len(mainDictKeys)): #for every key from the main dict do:
+            if(extractNumberAmount(mainDictKeys[mainDictKeyIndices]) == currLayer+1): 
+                preLayAllKeys_knowParentKeys.append(mainDictKeys[mainDictKeyIndices]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
+        for mainDictKeyIndices in preLayAllKeys_knowParentKeys:
+            preLayAllValues_knowParentValues.append(mainDict.get(mainDictKeyIndices))
         for currPositionOfPre_layer_elements in preLayElemPos_writeNextLay:
             currLayHREFmatrix_writeSublinks[currPositionOfPre_layer_elements] = scrapeLinks(preLayAllKeys_knowParentKeys[currPositionOfPre_layer_elements])
             
@@ -111,7 +111,10 @@ print(listToString(list((1,98,28,"njue"))))
 #for element in range(len(layer1)):
 #    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
 
-obj = dict((name=213,un="ufeu"))
+fruits = ["0","0,0","0,1"]
+newlist = fruits.sort()
+
+print(newlist)
 """
 print(extractNumberAmount("9079,083,9,1542,23"))
 for x in obj:
