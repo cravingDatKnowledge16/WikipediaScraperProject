@@ -49,8 +49,8 @@ def extractLinksRecursivly(start_element,layerDepth):
     allPre_layers = "0"
     pre_layer_elementsPositions = list()
     pre_layer_elementsPositions[0] = 0
-    preLayerElement_key_list = list()
-    preLayerElement_value_list = list()
+    preLayerAllKeys = list()
+    preLayerAllValues = list()
     currLayerHREF_matrix = list()
     mainDict = dict()
     mainDict[pre_layer_elementsPositions] = start_element
@@ -59,20 +59,27 @@ def extractLinksRecursivly(start_element,layerDepth):
 
         for mainDict_key_index in range(len(mainDict_keys)): #for every key from the main dict do:
             if(extractNumberAmount(mainDict_keys[mainDict_key_index]) == currLayer+1): 
-                preLayerElement_key_list.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
-        for mainDict_key_index in preLayerElement_key_list:
-            preLayerElement_value_list.append(mainDict.get(mainDict_key_index))
+                preLayerAllKeys.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
+        for mainDict_key_index in preLayerAllKeys:
+            preLayerAllValues.append(mainDict.get(mainDict_key_index))
         for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
-            currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(preLayerElement_key_list[currPositionOfPre_layer_elements])
+            currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(preLayerAllKeys[currPositionOfPre_layer_elements])
             
         for preLayerHREF_element_index in range(len(currLayerHREF_matrix)):
             for currLayerHREF_element_index in currLayerHREF_matrix[preLayerHREF_element_index]:
                 if(currLayerHREF_element_index):
                     mainDict[allPre_layers+f",{preLayerHREF_element_index}"+f",{currLayerHREF_element_index}"] = currLayerHREF_matrix[preLayerHREF_element_index][currLayerHREF_element_index]
-              
+                    
+        for mainDict_items in list(mainDict.items()):
+            mainDict_item_count = list(mainDict.values()).count(mainDict_items[1])
+            if(mainDict_item_count >= 2): #if a value occurs more than 2 times
+                toPopIndices = [i for i, x in enumerate(preLayerAllKeys) if x == mainDict_items[0]]
+                for popElement in toPopIndices:
+                    mainDict.pop(popElement)
+                
         allPre_layers+=",0"
         pre_layer_elementsPositions = range(len(currLayerHREF_matrix))
-        preLayerElement_key_list = list()
+        preLayerAllKeys = list()
         currLayerHREF_matrix = list()
 
                 
