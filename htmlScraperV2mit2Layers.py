@@ -73,13 +73,7 @@ def extractLinksRecursivly(start_element,layerDepth):
         preLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLayer+1)]
         preLayAllKeys_knowParentKeys = [item[0] for item in preLayAllItems_knowItemParents]
         preLayAllValues_knowParentKeys = [item[1] for item in preLayAllItems_knowItemParents]
-    
-        #return preLayAllKeys_knowParentKeys
-      
         #scrape the links from the previous layer and write them onto a temporary matrix
-        for currPositionOfPre_layer_elements in preLayElemPos_writeNextLay:
-            HREFmatrix_writeSublinks[currPositionOfPre_layer_elements] = scrapeLinks(preLayAllKeys_knowParentKeys[currPositionOfPre_layer_elements])
-            
         HREFmatrix_writeSublinks = [scrapeLinks(preLayElemPos_writeNextLay[preEl]) for preEl in preLayElemPos_writeNextLay]
         #copy all links from current layer onto the main dictionairies 
         for preLayerHREF_element_index in range(len(HREFmatrix_writeSublinks)):
