@@ -1,3 +1,14 @@
+"""
+RULES: 
+
+1. variable-name: data about the value + "_" + function of the value
+
+2.
+
+
+"""
+
+
 import urllib.request
 from bs4 import BeautifulSoup
 import array as arr
@@ -47,13 +58,13 @@ def extractLinksRecursivly(start_element,layerDepth):
     #extracts the sublinks of a Wikipedia-link recusively
     
     allPre_layers = "0"
-    pre_layer_elementsPositions = list()
-    pre_layer_elementsPositions[0] = 0
+    preLayerElements_elementsPositions = list()
+    preLayerElements_elementsPositions[0] = 0
     preLayerAllKeys = list()
     preLayerAllValues = list()
     currLayerHREF_matrix = list()
     mainDict = dict()
-    mainDict[pre_layer_elementsPositions] = start_element
+    mainDict[preLayerElements_elementsPositions] = start_element
     for currLayer in range(layerDepth): #for every layer do:
         mainDict_keys = list(mainDict.keys()) #copy every key from mainDict to the list mainDict_keys
 
@@ -62,7 +73,7 @@ def extractLinksRecursivly(start_element,layerDepth):
                 preLayerAllKeys.append(mainDict_keys[mainDict_key_index]) #create a list for every element of the main dict, who's key indicates the same layer depth as the current layer we are on 
         for mainDict_key_index in preLayerAllKeys:
             preLayerAllValues.append(mainDict.get(mainDict_key_index))
-        for currPositionOfPre_layer_elements in pre_layer_elementsPositions:
+        for currPositionOfPre_layer_elements in preLayerElements_elementsPositions:
             currLayerHREF_matrix[currPositionOfPre_layer_elements] = scrapeLinks(preLayerAllKeys[currPositionOfPre_layer_elements])
             
         for preLayerHREF_element_index in range(len(currLayerHREF_matrix)):
@@ -78,7 +89,7 @@ def extractLinksRecursivly(start_element,layerDepth):
                     mainDict.pop(popElement)
                 
         allPre_layers+=",0"
-        pre_layer_elementsPositions = range(len(currLayerHREF_matrix))
+        preLayerElements_elementsPositions = range(len(currLayerHREF_matrix))
         preLayerAllKeys = list()
         currLayerHREF_matrix = list()
 
