@@ -56,16 +56,17 @@ def saveToTXT(wantedLinksList, topDoc):
                 tempFile.write("%s\n"                                                       % item)
                 tempFile.close
 
-def extractLinksRecursivly(start_element,forEachElFunc,layerDepth=False):
+def extractLinksRecursivly(startElement,forEachElFunc,layerDepth=False):
     #extracts the sublinks of a Wikipedia-link recusively
-        allPreLayers_getPos = "0"
+        prePreLayer_getPos = "0"
         preLayElemPos_writeNextLay = list()
         preLayElemPos_writeNextLay.append(0)
         preLayAllKeys_knowParentKeys = list()
         preLayAllValues_knowParentValues = list()
         HREFmatrix_writeSublinks = list()
         mainDict = dict()
-        mainDict[allPreLayers_getPos] = start_element
+        mainDict[prePreLayer_getPos] = startElement
+        
         for currLayer in range(layerDepth): #for every layer do:
             mainDictItems = [list(item) for item in list(mainDict.items())]
             preLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLayer+1)]
@@ -76,21 +77,20 @@ def extractLinksRecursivly(start_element,forEachElFunc,layerDepth=False):
             #copy all links from current layer onto the main dictionairies 
             for preLayEl in range(len(HREFmatrix_writeSublinks)):
                 for currLayEl in HREFmatrix_writeSublinks[preLayEl]:
-                    #if(currLayEl):
-                    mainDict[allPreLayers_getPos+f",{preLayEl}"+f",{currLayEl}"] = HREFmatrix_writeSublinks[preLayEl][currLayEl]
+                    mainDict[f"{prePreLayer_getPos},{preLayEl},{currLayEl}"] = HREFmatrix_writeSublinks[preLayEl][currLayEl]
             #eliminate all duplicates to avoid infinite recursion        
-            for mainDict_items in list(mainDict.items()):
-                mainDict_item_count = list(mainDict.values()).count(mainDict_items[1])
+            for mainDictItem in list(mainDict.items()):
+                mainDict_item_count = list(mainDict.values()).count(mainDictItem[1])
                 if(mainDict_item_count >= 2): #if a value occurs more than 2 times
-                    toPopIndices = [i for i, x in enumerate(preLayAllKeys_knowParentKeys) if x == mainDict_items[0]]
-                    for popElement in toPopIndices:
-                        mainDict.pop(popElement)
+                    toPopIndices = [i for i, x in enumerate(preLayAllKeys_knowParentKeys) if x == mainDictItem[0]]
+                    for elToPop in toPopIndices:
+                        mainDict.pop(elToPop)
                     
-            allPreLayers_getPos+=",0"
+            prePreLayer_getPos+=",0"
             preLayElemPos_writeNextLay = range(len(HREFmatrix_writeSublinks))
             preLayAllKeys_knowParentKeys = list()
             HREFmatrix_writeSublinks = list()
-    
+        return mainDict
 
                 
 def extractNumberAmount(text):
