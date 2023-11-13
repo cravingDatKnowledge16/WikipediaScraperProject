@@ -58,14 +58,13 @@ def saveToTXT(wantedLinksList, topDoc):
 
 def extractLinksRecursivly(startElement,forEachElFunc,layerDepth=False):
     #extracts the sublinks of a Wikipedia-link recusively
-        prePreLayer_getPos = "0"
         preLayElemPos_writeNextLay = list()
         preLayElemPos_writeNextLay.append(0)
         preLayAllKeys_knowParentKeys = list()
         preLayAllValues_knowParentValues = list()
         HREFmatrix_writeSublinks = list()
         mainDict = dict()
-        mainDict[prePreLayer_getPos] = startElement
+        mainDict["0"] = startElement
         
         for currLayer in range(layerDepth): #for every layer do:
             mainDictItems = [list(item) for item in list(mainDict.items())]
@@ -73,11 +72,11 @@ def extractLinksRecursivly(startElement,forEachElFunc,layerDepth=False):
             preLayAllKeys_knowParentKeys = [item[0] for item in preLayAllItems_knowItemParents]
             preLayAllValues_knowParentKeys = [item[1] for item in preLayAllItems_knowItemParents]
             #scrape the links from the previous layer and write them onto a temporary matrix
-            HREFmatrix_writeSublinks = [forEachElFunc(preLayElemPos_writeNextLay[preEl]) for preEl in preLayElemPos_writeNextLay]
+            HREFmatrix_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in preLayAllKeys_knowParentKeys]
             #copy all links from current layer onto the main dictionairies 
-            for preLayEl in range(len(HREFmatrix_writeSublinks)):
-                for currLayEl in HREFmatrix_writeSublinks[preLayEl]:
-                    mainDict[f"{prePreLayer_getPos},{preLayEl},{currLayEl}"] = HREFmatrix_writeSublinks[preLayEl][currLayEl]
+            for preLayKeyIndex in range(len(preLayAllKeys_knowParentKeys)):
+                for currLayPos in HREFmatrix_writeSublinks[preLayKeyIndex]:
+                    mainDict[f"{preLayAllKeys_knowParentKeys[preLayKeyIndex]},{currLayPos}"] = HREFmatrix_writeSublinks[preLayKeyIndex][currLayPos]
             #eliminate all duplicates to avoid infinite recursion        
             for mainDictItem in list(mainDict.items()):
                 mainDict_item_count = list(mainDict.values()).count(mainDictItem[1])
@@ -86,7 +85,6 @@ def extractLinksRecursivly(startElement,forEachElFunc,layerDepth=False):
                     for elToPop in toPopIndices:
                         mainDict.pop(elToPop)
                     
-            prePreLayer_getPos+=",0"
             preLayElemPos_writeNextLay = range(len(HREFmatrix_writeSublinks))
             preLayAllKeys_knowParentKeys = list()
             HREFmatrix_writeSublinks = list()
