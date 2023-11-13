@@ -49,20 +49,24 @@ def scrapeLinks(url):
     return wantedLinksList
 
 
-def saveToTXT(wantedLinksList, topDoc):
-    newTopDoc = re.sub(r'[^a-zA-Z0-9 \n\.]', '_', topDoc)
-    with open(f'results/{newTopDoc}.txt', 'w') as tempFile:
-            for item in wantedLinksList:
-                tempFile.write("%s\n"                                                       % item)
-                tempFile.close()
+def saveDictToTXT(dict, docName): 
+    docName = re.sub(r"[\s\.,]", '', docName)
+    dictKeys = [item[0] for item in list(dict.items())]
+    dictValues = [item[1] for item in list(dict.items())]
+    with open(f'results/{docName}.txt', 'w') as tempFile:
+        for itemIndex in range(len(dict)):
+            tempFile.write(f"  {dictKeys[itemIndex]} : {dictValues[itemIndex]}\n")
 
-def extractRecursivly(startElement,forEachElFunc,layerDepth = -1):
+    
+ 
+   
+
+def storeFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
     #extracts the elements of a dictionary recursively
         currLayAllKeys_knowParentKeys = list()
         nextLayAllItems_writeSublinks = list()
         mainDict = dict()
         mainDict["0"] = startElement
-        
         for currLayer in range(layerDepth): #for every layer do:
             mainDictItems = [list(item) for item in list(mainDict.items())]
             print(f"mainDictItems {mainDictItems}")
@@ -80,16 +84,26 @@ def extractRecursivly(startElement,forEachElFunc,layerDepth = -1):
                     print(f"nextLayPos {nextLayPos}")
                     mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
                     print(f"mainDict {mainDict}")
-            #eliminate all duplicates to avoid infinite recursion        
-            for mainDictItem in list(mainDict.items()):
+            #eliminate all duplicates to avoid infinite recursion    
+            mainDictItems = [list(item) for item in list(mainDict.items())]
+            print("CHECK FOR DUPL")
+            for mainDictItem in mainDictItems:
+                mainDictItem = list(mainDictItem)
                 print(f"mainDictItem {mainDictItem}")
-                mainDictItemCount = list(mainDict.values()).count(list(mainDictItem)[1])
+                mainDictValues = list(mainDict.values())
+                print(f"mainDictValues {mainDictValues}")
+                mainDictKeys = list(mainDict.keys())
+                print(f"mainDictKeys {mainDictKeys}")
+                mainDictItemCount = mainDictValues.count(mainDictItem[1])
                 print(f"mainDictItemCount {mainDictItemCount}")
                 if(mainDictItemCount >= 2): #if a value occurs more than 2 times
-                    toPopList = [i for i, x in enumerate(currLayAllKeys_knowParentKeys) if x == mainDictItem[0]]
+                    toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
+                    toPopList.pop(0)
                     print(f"toPopList {toPopList}")
-                    for elToPop in toPopList:
-                        print(f"POP {mainDict.pop(elToPop)}")
+                    for keysToPop in toPopList:
+                        pop = mainDict.pop(keysToPop)
+                        print(f"POP {pop}")
+            print("DUPL CHECK COMPLETE")
         return mainDict
 
                 
@@ -99,16 +113,22 @@ def extractNumberAmount(text):
 
 def listToString(list):
     return re.sub(r"[\s\[\]]","",str(list))
+
+def getIndexByKey(key,dict):
+    return list(dict.keys()).index(key)
+    
 print(listToString(list((1,98,28,"njue"))))
 #file = open('saveValues.txt', 'r')
 obj = list((9,18,28))
 print([el for el in enumerate(obj)])
 def divideWeirdly(el):
-    return [el*(x/3) for x in range(1,4)]
+    return [el*(x/4) for x in range(1,4)]
 
 
-print(extractRecursivly(123,divideWeirdly,4))
+TADA = storeFuncRecurInDict(123,divideWeirdly,10)
 
+print(f"TADA: {TADA}")
+saveDictToTXT(TADA,"TADA")
 
 #layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
 #print(layer1)

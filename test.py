@@ -19,4 +19,4 @@ def dictNoDuplVal(dict):
 
 print(dictToList(obj))
 
-print(set(list((11,2,5,676))))2
+print(set(list((11,2,5,676))))
