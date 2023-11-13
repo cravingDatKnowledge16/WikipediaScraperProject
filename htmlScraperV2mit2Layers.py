@@ -56,30 +56,40 @@ def saveToTXT(wantedLinksList, topDoc):
                 tempFile.write("%s\n"                                                       % item)
                 tempFile.close()
 
-def extractLinksRecursivly(startElement,forEachElFunc,layerDepth=False):
-    #extracts the sublinks of a Wikipedia-link recusively
+def extractRecursivly(startElement,forEachElFunc,layerDepth = -1):
+    #extracts the elements of a dictionary recursively
         currLayAllKeys_knowParentKeys = list()
-        HREFmatrix_writeSublinks = list()
+        nextLayAllItems_writeSublinks = list()
         mainDict = dict()
         mainDict["0"] = startElement
         
         for currLayer in range(layerDepth): #for every layer do:
             mainDictItems = [list(item) for item in list(mainDict.items())]
+            print(f"mainDictItems {mainDictItems}")
             currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLayer+1)]
+            print(f"currLayAllItems {currLayAllItems_knowItemParents}")
             currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
+            print(f"currLayAllKeys {currLayAllKeys_knowParentKeys}")
             #scrape the links from the previous layer and write them onto a temporary matrix
-            HREFmatrix_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
+            nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
+            print(f"nextLayAllItems {nextLayAllItems_writeSublinks}")
             #copy all links from current layer onto the main dictionairies 
             for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                for nextLayPos in HREFmatrix_writeSublinks[currLayKeyIndex]:
-                    mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = HREFmatrix_writeSublinks[currLayKeyIndex][nextLayPos]
+                print(f"currLayKeyIndex {currLayKeyIndex}")
+                for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                    print(f"nextLayPos {nextLayPos}")
+                    mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
+                    print(f"mainDict {mainDict}")
             #eliminate all duplicates to avoid infinite recursion        
             for mainDictItem in list(mainDict.items()):
-                mainDictItemCount = list(mainDict.values()).count(mainDictItem[1])
+                print(f"mainDictItem {mainDictItem}")
+                mainDictItemCount = list(mainDict.values()).count(list(mainDictItem)[1])
+                print(f"mainDictItemCount {mainDictItemCount}")
                 if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                     toPopList = [i for i, x in enumerate(currLayAllKeys_knowParentKeys) if x == mainDictItem[0]]
+                    print(f"toPopList {toPopList}")
                     for elToPop in toPopList:
-                        mainDict.pop(elToPop)
+                        print(f"POP {mainDict.pop(elToPop)}")
         return mainDict
 
                 
@@ -93,6 +103,12 @@ print(listToString(list((1,98,28,"njue"))))
 #file = open('saveValues.txt', 'r')
 obj = list((9,18,28))
 print([el for el in enumerate(obj)])
+def divideWeirdly(el):
+    return [el*(x/3) for x in range(1,4)]
+
+
+print(extractRecursivly(123,divideWeirdly,4))
+
 
 #layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
 #print(layer1)
