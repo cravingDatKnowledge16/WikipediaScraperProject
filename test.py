@@ -17,6 +17,12 @@ def dictNoDuplVal(dict):
     dictVal = list(dict.values())
     pass 
 
-print(dictToList(obj))
+#print(dictToList(obj))
 
 print(set(list((11,2,5,676))))
+
+
+
+list2 = list((1,3,6,2,6))
+
+print(list2[0:])

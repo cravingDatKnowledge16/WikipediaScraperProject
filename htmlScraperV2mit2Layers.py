@@ -41,43 +41,65 @@ def storeFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
         mainDict = dict()
         mainDict["0"] = startElement
         if(layerDepth >= 0):
-            for currLayer in range(layerDepth): #for every layer do:
+            for currLay in range(layerDepth): #for every layer do:
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                print(f"mainDictItems {mainDictItems}")
-                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLayer+1)]
-                print(f"currLayAllItems {currLayAllItems_knowItemParents}")
+                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                print(f"currLayAllKeys {currLayAllKeys_knowParentKeys}")
                 #scrape the links from the previous layer and write them onto a temporary matrix
                 nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
-                print(f"nextLayAllItems {nextLayAllItems_writeSublinks}")
-                #copy all links from current layer onto the main dictionairies 
+                #copy all links from current layer onto the main dictionairy
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                    print(f"currLayKeyIndex {currLayKeyIndex}")
                     for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        print(f"nextLayPos {nextLayPos}")
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
-                        print(f"mainDict {mainDict}")
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                print("CHECK FOR DUPL")
+                for mainDictItem in mainDictItems:
+                    toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
+                    for keysToPop in toPopList[1:]:
+                        pop = mainDict.pop(keysToPop)
+                
+        else:
+            currLay = 0
+            while(True):
+                mainDictItems = [list(item) for item in list(mainDict.items())]
+                #print(f"mainDictItems {mainDictItems}")
+                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
+                #print(f"currLayAllItems {currLayAllItems_knowItemParents}")
+                currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
+                #print(f"currLayAllKeys {currLayAllKeys_knowParentKeys}")
+                #scrape the links from the previous layer and write them onto a temporary matrix
+                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
+                #print(f"nextLayAllItems {nextLayAllItems_writeSublinks}")
+                #copy all links from current layer onto the main dictionairies 
+                for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
+                    #print(f"currLayKeyIndex {currLayKeyIndex}")
+                    for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                        #print(f"nextLayPos {nextLayPos}")
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
+                        #print(f"mainDict {mainDict}")
+                #eliminate all duplicates to avoid infinite recursion    
+                mainDictItems = [list(item) for item in list(mainDict.items())]
+                #print("CHECK FOR DUPL")
                 for mainDictItem in mainDictItems:
                     mainDictItem = list(mainDictItem)
-                    print(f"mainDictItem {mainDictItem}")
+                    #print(f"mainDictItem {mainDictItem}")
                     mainDictValues = list(mainDict.values())
-                    print(f"mainDictValues {mainDictValues}")
+                    #print(f"mainDictValues {mainDictValues}")
                     mainDictKeys = list(mainDict.keys())
-                    print(f"mainDictKeys {mainDictKeys}")
+                    #print(f"mainDictKeys {mainDictKeys}")
                     mainDictItemCount = mainDictValues.count(mainDictItem[1])
-                    print(f"mainDictItemCount {mainDictItemCount}")
+                    #print(f"mainDictItemCount {mainDictItemCount}")
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
-                        print(f"toPopList {toPopList}")
+                        #print(f"toPopList {toPopList}")
                         for keysToPop in toPopList:
                             pop = mainDict.pop(keysToPop)
-                            print(f"POP {pop}")
-                print("DUPL CHECK COMPLETE")
+                            #print(f"POP {pop}")
+                #print("DUPL CHECK COMPLETE")
+                if(len(nextLayAllItems_writeSublinks) == 0):
+                    return dict(dict = mainDict,stopLayer = currLay)
+                currLay+=1
         return mainDict
               
 def extractNumberAmount(text):
@@ -108,4 +130,44 @@ TADA = storeFuncRecurInDict(123,divideWeirdly,10)
 print(f"TADA: {TADA}")
 saveDictToTXT(TADA,"TADA")
 
+
+
+
+"""
+Storage:
+
+def storeFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
+    #extracts the elements of a dictionary recursively
+        currLayAllKeys_knowParentKeys = list()
+        nextLayAllItems_writeSublinks = list()
+        mainDict = dict()
+        mainDict["0"] = startElement
+        if(layerDepth >= 0):
+            for currLay in range(layerDepth): #for every layer do:
+                mainDictItems = [list(item) for item in list(mainDict.items())]
+                #print(f"mainDictItems {mainDictItems}")
+                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
+                #print(f"currLayAllItems {currLayAllItems_knowItemParents}")
+                currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
+                #print(f"currLayAllKeys {currLayAllKeys_knowParentKeys}")
+                #scrape the links from the previous layer and write them onto a temporary matrix
+                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
+                #print(f"nextLayAllItems {nextLayAllItems_writeSublinks}")
+                #copy all links from current layer onto the main dictionairies 
+                for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
+                    #print(f"currLayKeyIndex {currLayKeyIndex}")
+                    for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                        #print(f"nextLayPos {nextLayPos}")
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
+                        #print(f"mainDict {mainDict}")
+                #eliminate all duplicates to avoid infinite recursion    
+                mainDictItems = [list(item) for item in list(mainDict.items())]
+                #print("CHECK FOR DUPL")
+                for mainDictItem in mainDictItems:
+                    toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
+                    for keysToPop in toPopList[1:]:
+                        pop = mainDict.pop(keysToPop)
+                #print("DUPL CHECK COMPLETE")
+
+"""
 
