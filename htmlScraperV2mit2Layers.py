@@ -20,7 +20,7 @@ import datetime
 from numpy import Infinity, iterable
 
 
-#url = "https://de.wikipedia.org/wiki/Chaos_Computer_Club"
+startUrl = "https://de.wikipedia.org/wiki/Chaos_Computer_Club"
 
 def scrapeWikipediaLinks(url):
     sublinkContainer = list()
@@ -53,10 +53,28 @@ def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
+                """
                 for mainDictItem in mainDictItems:
                     toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
+                    print(f"toPopList {toPopList}")
                     for keysToPop in toPopList[1:]:
                         pop = mainDict.pop(keysToPop)
+                """
+                for mainDictItem in mainDictItems:
+                    mainDictItem = list(mainDictItem)
+                    #print(f"mainDictItem {mainDictItem}")
+                    mainDictValues = list(mainDict.values())
+                    #print(f"mainDictValues {mainDictValues}")
+                    mainDictKeys = list(mainDict.keys())
+                    #print(f"mainDictKeys {mainDictKeys}")
+                    mainDictItemCount = mainDictValues.count(mainDictItem[1])
+                    #print(f"mainDictItemCount {mainDictItemCount}")
+                    if(mainDictItemCount >= 2): #if a value occurs more than 2 times
+                        toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
+                        toPopList.pop(0)
+                        #print(f"toPopList {toPopList}")
+                        for keysToPop in toPopList:
+                            pop = mainDict.pop(keysToPop)
                 
         else:
             currLay = 0
@@ -121,15 +139,18 @@ def saveDictToTXT(dict, docName):
             tempFile.write(f"  {dictKeys[itemIndex]} : {dictValues[itemIndex]}\n")
     
 def divideWeirdly(el):
-    return [el*(x/4) for x in range(1,4)]
+    return [el*(x/9) for x in range(1,10)]
 
-TADA2 = applyFuncRecurInDict(9)
+def squareShit(x):
+     return [pow(x,0),pow(x,2)]
+
+TADA2 = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,7)
 
 
-TADA = applyFuncRecurInDict(123,divideWeirdly,10)
+#TADA = applyFuncRecurInDict(123,divideWeirdly,10)
 
-print(f"TADA: {TADA}")
-saveDictToTXT(TADA,"TADA")
+print(f"TADA2: {TADA2}")
+saveDictToTXT(TADA2,"TADA2")
 
 
 
