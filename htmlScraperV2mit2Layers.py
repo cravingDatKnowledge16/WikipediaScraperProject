@@ -123,6 +123,7 @@ def saveDictToTXT(dict, docName):
 def divideWeirdly(el):
     return [el*(x/4) for x in range(1,4)]
 
+TADA2 = applyFuncRecurInDict(9)
 
 
 TADA = applyFuncRecurInDict(123,divideWeirdly,10)
