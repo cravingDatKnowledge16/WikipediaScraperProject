@@ -17,10 +17,10 @@ from bs4 import BeautifulSoup
 import array as arr
 import re
 import datetime
-from numpy import Infinity, iterable
+import numpy
 
 
-startUrl = "https://de.wikipedia.org/wiki/Chaos_Computer_Club"
+startUrl = "https://de.wikipedia.org/wiki/Universum"
 
 def scrapeWikipediaLinks(url):
     sublinkContainer = list()
@@ -144,13 +144,13 @@ def divideWeirdly(el):
 def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
-TADA2 = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,7)
+TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,12)
 
 
 #TADA = applyFuncRecurInDict(123,divideWeirdly,10)
 
-print(f"TADA2: {TADA2}")
-saveDictToTXT(TADA2,"TADA2")
+print(f"TADA: {TADA}")
+saveDictToTXT(TADA,"TADA")
 
 
 
