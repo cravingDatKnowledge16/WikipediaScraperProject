@@ -2,6 +2,8 @@ from ast import For
 import imp
 from os import error
 import urllib
+from urllib import request as req
+from urllib import error as err
 from bs4 import BeautifulSoup
 import array as arr
 import re
@@ -20,7 +22,7 @@ def scrapeLinks(url):
     linkArray = []
 
     try:
-        open_page = urllib.request.urlopen(url)
+        open_page = req.urlopen(url)
         soup = BeautifulSoup(open_page, "html.parser")
 
         mw_parser_output = soup.find_all(class_="mw-parser-output")
@@ -29,7 +31,7 @@ def scrapeLinks(url):
             for a_tag in element.findAll('a', href=True):
                 linkVar = a_tag['href']
                 linkArray.append(linkVar)
-    except urllib.error.HTTPError:
+    except err.HTTPError:
         print(Fore.RED + f"Couldn't load {url}, skipping file.")
         errorCounter = errorCounter+1
         return []
@@ -80,6 +82,6 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
     saveToTXT(globalLinkSet, "ScraperV3Result-no1")
 
 
-scrapeLinksNotOrdered(2, "/wiki/New_Urbanism")
+scrapeLinksNotOrdered(2, "/wiki/Kadua_cookiana")
 zeitpunkt2 = time.perf_counter()
 print(f"Dauer: {zeitpunkt2-zeitpunkt1} Fehler: {errorCounter} ({round((zeitpunkt2-zeitpunkt1)/60, ndigits=3)}min)")
