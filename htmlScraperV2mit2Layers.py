@@ -34,23 +34,23 @@ def scrapeWikipediaLinks(url):
     sublinkContainer = list(set([sublinkHREF for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
     return sublinkContainer
 
-def storeFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
-    #extracts the elements of a dictionary recursively
+def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
+    #extracts the elements in a dictionary recursively
         currLayAllKeys_knowParentKeys = list()
         nextLayAllItems_writeSublinks = list()
         mainDict = dict()
         mainDict["0"] = startElement
         if(layerDepth >= 0):
-            for currLay in range(layerDepth): #for every layer do:
+            for currLay in range(layerDepth): 
+                #create the items for the next layer
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
+                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                #scrape the links from the previous layer and write them onto a temporary matrix
-                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
-                #copy all links from current layer onto the main dictionairy
+                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
+                #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 for mainDictItem in mainDictItems:
@@ -125,7 +125,7 @@ def divideWeirdly(el):
 
 
 
-TADA = storeFuncRecurInDict(123,divideWeirdly,10)
+TADA = applyFuncRecurInDict(123,divideWeirdly,10)
 
 print(f"TADA: {TADA}")
 saveDictToTXT(TADA,"TADA")
