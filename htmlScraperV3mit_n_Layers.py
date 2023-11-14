@@ -1,12 +1,15 @@
+from ast import For
+import imp
 from os import error
-import urllib.request
+import urllib
 from bs4 import BeautifulSoup
 import array as arr
 import re
 import time
 import sys
 from requests import HTTPError
-import tqdm
+import colorama
+from colorama import Fore, Style
 
 errorCounter = 0
 #from multiprocessing import Pool, cpu_count
@@ -18,22 +21,18 @@ def scrapeLinks(url):
 
     try:
         open_page = urllib.request.urlopen(url)
+        soup = BeautifulSoup(open_page, "html.parser")
+
+        mw_parser_output = soup.find_all(class_="mw-parser-output")
+
+        for element in mw_parser_output:
+            for a_tag in element.findAll('a', href=True):
+                linkVar = a_tag['href']
+                linkArray.append(linkVar)
     except urllib.error.HTTPError:
-        print(f"Couldn't load {url}, skipping.", file=sys.stderr)
+        print(Fore.RED + f"Couldn't load {url}, skipping file.")
         errorCounter = errorCounter+1
         return []
-
-    soup = BeautifulSoup(open_page, "html.parser")
-    #print(soup)
-
-    mw_parser_output = soup.find_all(class_="mw-parser-output")
-
-    for element in mw_parser_output:
-        for a_tag in element.findAll('a', href=True):
-            linkVar = a_tag['href']
-            linkArray.append(linkVar)
-    #print(linkArray)
-
 
     #verbotene Worte: Datei||Hilfe||Wikipedia||Spezial
 
@@ -51,8 +50,6 @@ def saveToTXT(wantedLinksList, topDoc):
                 temp_file.close
 
 
-#file = open('saveValues.txt', 'r')
-
 def scrapeLinksNotOrdered(numberOfTimes, startLink):
     #Arrays erstellen
     currentLinkArray = []
@@ -60,14 +57,16 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
     globalLinkSet = set()
     previousLinkArray.append(startLink)
     globalLinkSet.add(startLink)
+    numberOfScrapedLinks = 0
     
     #Äußere for Schleife pro Layer: 
     for i in range(0, numberOfTimes):
         #Alle Links aus den in der vorherigen Layer gescrapeden
         #Websites nacheinander auswählen
         for prevLink in previousLinkArray:
-            print(f"https://de.wikipedia.org{prevLink}")
+            print(f"[Layer {i+1}/{numberOfTimes}, schon {numberOfScrapedLinks} von {len(previousLinkArray)} mal] " + Fore.BLUE + f"{prevLink}" + Fore.WHITE)
             temp = scrapeLinks(f"https://de.wikipedia.org{prevLink}")
+            numberOfScrapedLinks = numberOfScrapedLinks+1
             #Den einzelnen Link mit dem globalLinkArray abgleichen,
             #wenn er nicht schon drin ist, wird er hinzugefügt:
             for temp_entry in temp:
@@ -77,17 +76,10 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
         #current in previous pushen
         previousLinkArray = currentLinkArray.copy()
         currentLinkArray = []
+        numberOfScrapedLinks = 0
     saveToTXT(globalLinkSet, "ScraperV3Result-no1")
-        
-                    
 
 
-#layer1 = scrapeLinks("https://de.wikipedia.org/wiki/Chaos_Computer_Club")
-#print(layer1)
-#for element in range(len(layer1)):
-#    saveToTXT(scrapeLinks(f"https://de.wikipedia.org{layer1[element]}"), layer1[element])
-
-
-scrapeLinksNotOrdered(1, "/wiki/CCC")
+scrapeLinksNotOrdered(2, "/wiki/New_Urbanism")
 zeitpunkt2 = time.perf_counter()
-print(f"Dauer: {zeitpunkt2-zeitpunkt1} Fehler: {errorCounter}")
+print(f"Dauer: {zeitpunkt2-zeitpunkt1} Fehler: {errorCounter} ({round((zeitpunkt2-zeitpunkt1)/60, ndigits=3)}min)")
