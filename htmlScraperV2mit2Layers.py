@@ -17,21 +17,26 @@ from bs4 import BeautifulSoup
 import array as arr
 import re
 import datetime
-from numpy import Infinity, iterable
+import numpy
+import ssl
 
 
-startUrl = "https://de.wikipedia.org/wiki/Chaos_Computer_Club"
+startUrl = "https://de.wikipedia.org/wiki/Universum"
 
 def scrapeWikipediaLinks(url):
+    urlDomain = re.search(r"(?<=https:\/\/)\w+\.\w+\.\w+",url)
+    print(urlDomain)
+    return
     sublinkContainer = list()
-    openedPage = urllib.request.urlopen(url)
+    noSSLverifiy = ssl._create_unverified_context()
+    openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
     parentContainer = wikipediaPageHTML.find_all(class_="mw-parser-output")
     for containerItem in parentContainer:
         for sublink in containerItem.findAll('a', href=True):
             sublinkHREF = sublink['href']
             sublinkContainer.append(sublinkHREF)
-    sublinkContainer = list(set([sublinkHREF for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
+    sublinkContainer = list(set([f"https://{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
     return sublinkContainer
 
 def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
@@ -144,13 +149,13 @@ def divideWeirdly(el):
 def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
-TADA2 = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,7)
-
+#TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
+scrapeWikipediaLinks(startUrl)
 
 #TADA = applyFuncRecurInDict(123,divideWeirdly,10)
 
-print(f"TADA2: {TADA2}")
-saveDictToTXT(TADA2,"TADA2")
+#print(f"TADA: {TADA}")
+#saveDictToTXT(TADA,"TADA")
 
 
 
