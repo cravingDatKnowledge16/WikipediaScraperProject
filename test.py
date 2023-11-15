@@ -23,6 +23,6 @@ print(set(list((11,2,5,676))))
 
 
 
-list2 = list((1,3,6,2,6))
+list2 = [1]
 
-print(list2[0:])
+print(list2[1:])

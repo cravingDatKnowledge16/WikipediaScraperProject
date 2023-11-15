@@ -29,8 +29,9 @@ def scrapeWikipediaLinks(url,extraInfo = False):
     noSSLverifiy = ssl._create_unverified_context()
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-    parentContainer = wikipediaPageHTML.find_all(class_="mw-parser-output")
-    print(parentContainer)
+    parentContainer = wikipediaPageHTML.div(class_="mw-parser-output")
+    print(f"parentContainer {parentContainer}")
+    return
     if(extraInfo == True):
         headerImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
         headerParagraph = parentContainer.find("p")
@@ -41,47 +42,31 @@ def scrapeWikipediaLinks(url,extraInfo = False):
     return sublinkContainer
 
 def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
-    #extracts the elements in a dictionary recursively
-        currLayAllKeys_knowParentKeys = list()
-        nextLayAllItems_writeSublinks = list()
+    #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
         mainDict = dict()
         mainDict["0"] = startElement
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
-                #create the items for the next layer
+                #create the items for the next laye.#r
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                    for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
+                    for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                """
-                for mainDictItem in mainDictItems:
-                    toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
-                    print(f"toPopList {toPopList}")
-                    for keysToPop in toPopList[1:]:
-                        pop = mainDict.pop(keysToPop)
-                """
                 for mainDictItem in mainDictItems:
                     mainDictItem = list(mainDictItem)
-                    #print(f"mainDictItem {mainDictItem}")
                     mainDictValues = list(mainDict.values())
-                    #print(f"mainDictValues {mainDictValues}")
-                    mainDictKeys = list(mainDict.keys())
-                    #print(f"mainDictKeys {mainDictKeys}")
                     mainDictItemCount = mainDictValues.count(mainDictItem[1])
-                    #print(f"mainDictItemCount {mainDictItemCount}")
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
-                        #print(f"toPopList {toPopList}")
                         for keysToPop in toPopList:
-                            pop = mainDict.pop(keysToPop)
-                
+                            pop = mainDict.pop(keysToPop)          
         else:
             currLay = 0
             while(True):
@@ -97,9 +82,9 @@ def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
                 #copy all links from current layer onto the main dictionairies 
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     #print(f"currLayKeyIndex {currLayKeyIndex}")
-                    for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        #print(f"nextLayPos {nextLayPos}")
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
+                    for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                        #print(f"nextElLayPos {nextElLayPos}")
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
                         #print(f"mainDict {mainDict}")
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
@@ -145,7 +130,7 @@ def saveDictToTXT(dict, docName):
             tempFile.write(f"  {dictKeys[itemIndex]} : {dictValues[itemIndex]}\n")
     
 def divideWeirdly(el):
-    return [el*(x/9) for x in range(1,10)]
+    return [el*0.5,el*1.5]
 
 def squareShit(x):
      return [pow(x,0),pow(x,2)]
@@ -153,11 +138,13 @@ def squareShit(x):
 
 print(scrapeWikipediaLinks(startUrl))
 
-#TADA = applyFuncRecurInDict(123,divideWeirdly,10)
+
 def DOIT():
-    TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
+    #TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
+    TADA = applyFuncRecurInDict(123,divideWeirdly,5)
     print(f"TADA: {TADA}")
     saveDictToTXT(TADA,"TADA")
+
 
 
 
@@ -185,9 +172,9 @@ def storeFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
                 #copy all links from current layer onto the main dictionairies 
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     #print(f"currLayKeyIndex {currLayKeyIndex}")
-                    for nextLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        #print(f"nextLayPos {nextLayPos}")
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextLayPos]
+                    for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                        #print(f"nextElLayPos {nextElLayPos}")
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
                         #print(f"mainDict {mainDict}")
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
