@@ -29,10 +29,8 @@ def scrapeWikipediaLinks(url,extraInfo = False):
     noSSLverifiy = ssl._create_unverified_context()
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-    print("Test")
     parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
     print(f"parentContainer {parentContainer}")
-    return
     if(extraInfo == True):
         headerImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
         headerParagraph = parentContainer.find("p")
@@ -137,12 +135,12 @@ def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
 
-scrapeWikipediaLinks(startUrl)
+#print(scrapeWikipediaLinks(startUrl))
 
 
 def DOIT():
-    #TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
-    TADA = applyFuncRecurInDict(123,divideWeirdly,5)
+    TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
+    #TADA = applyFuncRecurInDict(123,divideWeirdly,5)
     print(f"TADA: {TADA}")
     saveDictToTXT(TADA,"TADA")
 
