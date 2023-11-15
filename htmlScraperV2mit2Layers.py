@@ -29,7 +29,8 @@ def scrapeWikipediaLinks(url,extraInfo = False):
     noSSLverifiy = ssl._create_unverified_context()
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-    parentContainer = wikipediaPageHTML.div(class_="mw-parser-output")
+    print("Test")
+    parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
     print(f"parentContainer {parentContainer}")
     return
     if(extraInfo == True):
@@ -136,7 +137,7 @@ def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
 
-print(scrapeWikipediaLinks(startUrl))
+scrapeWikipediaLinks(startUrl)
 
 
 def DOIT():
