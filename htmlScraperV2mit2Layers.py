@@ -30,6 +30,8 @@ def scrapeWikipediaLinks(url):
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
     parentContainer = wikipediaPageHTML.find_all(class_="mw-parser-output")
+    headerImage = wikipediaPageHTML.find(class_="mw-file-element").get("src")
+    return headerImage
     for containerItem in parentContainer:
         for sublink in containerItem.findAll('a', href=True):
             sublinkHREF = sublink['href']
@@ -147,13 +149,14 @@ def divideWeirdly(el):
 def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
-TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
 
+print(scrapeWikipediaLinks(startUrl))
 
 #TADA = applyFuncRecurInDict(123,divideWeirdly,10)
-
-print(f"TADA: {TADA}")
-saveDictToTXT(TADA,"TADA")
+def DOIT():
+    TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
+    print(f"TADA: {TADA}")
+    saveDictToTXT(TADA,"TADA")
 
 
 
