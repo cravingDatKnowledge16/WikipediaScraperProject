@@ -29,16 +29,18 @@ def scrapeWikipediaLinks(url,extraInfo = False):
     noSSLverifiy = ssl._create_unverified_context()
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-    parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
+    print(f"wikipediaPageHTML {type(wikipediaPageHTML)}")
+    parentContainer = wikipediaPageHTML.find(class_="mw-parser-output").contents
     print(f"parentContainer {parentContainer}")
+    print(f"type {type(parentContainer)}")
     if(extraInfo == True):
         headerImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
-        headerParagraph = parentContainer.find("p")
+        headerParagraph = parentContainer.p
     for sublink in parentContainer.find_all('a', href=True):
         sublinkHREF = sublink['href']
         sublinkContainer.append(sublinkHREF)
     sublinkContainer = list(set([f"{urlDomain}{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
-    return sublinkContainer
+    return #sublinkContainer
 
 def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
     #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
@@ -136,7 +138,7 @@ def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
 
-#print(scrapeWikipediaLinks(startUrl))
+print(scrapeWikipediaLinks(startUrl))
 
 
 def DOIT():
@@ -145,7 +147,7 @@ def DOIT():
     print(f"TADA: {TADA}")
     saveDictToTXT(TADA,"TADA")
 
-DOIT()
+#DOIT()
 
 
 
