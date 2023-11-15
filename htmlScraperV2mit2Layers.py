@@ -156,6 +156,28 @@ class ScrapeLinks:
     def __init__(self,startURL):
         self.startURL = startURL
     def scrape(self,layerDepth = -1):
+        def scrapeWikipediaLinks(url):
+            urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",url).group()
+            sublinkContainer = list()
+            noSSLverifiy = ssl._create_unverified_context()
+            openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
+            wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
+            parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
+            for sublink in parentContainer.find_all('a', href=True):
+                sublinkHREF = sublink['href']
+                sublinkContainer.append(sublinkHREF)
+            sublinkContainer = list(set([f"{urlDomain}{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
+            return sublinkContainer
+
+        def getImportantPageInfo(url):
+            noSSLverifiy = ssl._create_unverified_context()
+            openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
+            wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
+            parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
+            descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
+            descParagraph = parentContainer.p.text
+            allPageInfo = dict(descImage=descImage,descParagraph=descParagraph)
+            return allPageInfo 
     #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
         mainDict = dict()
         mainDict["0"] = self.startURL
@@ -165,7 +187,7 @@ class ScrapeLinks:
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
@@ -186,45 +208,33 @@ class ScrapeLinks:
             currLay = 0
             while(True):
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                #print(f"mainDictItems {mainDictItems}")
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
-                #print(f"currLayAllItems {currLayAllItems_knowItemParents}")
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                #print(f"currLayAllKeys {currLayAllKeys_knowParentKeys}")
                 #scrape the links from the previous layer and write them onto a temporary matrix
-                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
-                #print(f"nextLayAllItems {nextLayAllItems_writeSublinks}")
+                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
                 #copy all links from current layer onto the main dictionairies 
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                    #print(f"currLayKeyIndex {currLayKeyIndex}")
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        #print(f"nextElLayPos {nextElLayPos}")
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
-                        #print(f"mainDict {mainDict}")
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                #print("CHECK FOR DUPL")
                 for mainDictItem in mainDictItems:
                     mainDictItem = list(mainDictItem)
-                    #print(f"mainDictItem {mainDictItem}")
                     mainDictValues = list(mainDict.values())
-                    #print(f"mainDictValues {mainDictValues}")
                     mainDictKeys = list(mainDict.keys())
-                    #print(f"mainDictKeys {mainDictKeys}")
                     mainDictItemCount = mainDictValues.count(mainDictItem[1])
-                    #print(f"mainDictItemCount {mainDictItemCount}")
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
-                        #print(f"toPopList {toPopList}")
                         for keysToPop in toPopList:
                             pop = mainDict.pop(keysToPop)
-                            #print(f"POP {pop}")
-                #print("DUPL CHECK COMPLETE")
                 if(len(nextLayAllItems_writeSublinks) == 0):
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
         return mainDict
+    
+       
+
 
 
 
