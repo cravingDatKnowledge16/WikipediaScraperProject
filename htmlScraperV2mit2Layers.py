@@ -23,19 +23,20 @@ import ssl
 
 startUrl = "https://de.wikipedia.org/wiki/Universum"
 
-def scrapeWikipediaLinks(url):
+def scrapeWikipediaLinks(url,extraInfo = False):
     urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",url).group()
     sublinkContainer = list()
     noSSLverifiy = ssl._create_unverified_context()
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
     parentContainer = wikipediaPageHTML.find_all(class_="mw-parser-output")
-    headerImage = wikipediaPageHTML.find(class_="mw-file-element").get("src")
-    return headerImage
-    for containerItem in parentContainer:
-        for sublink in containerItem.findAll('a', href=True):
-            sublinkHREF = sublink['href']
-            sublinkContainer.append(sublinkHREF)
+    print(parentContainer)
+    if(extraInfo == True):
+        headerImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
+        headerParagraph = parentContainer.find("p")
+    for sublink in parentContainer.find_all('a', href=True):
+        sublinkHREF = sublink['href']
+        sublinkContainer.append(sublinkHREF)
     sublinkContainer = list(set([f"{urlDomain}{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
     return sublinkContainer
 
