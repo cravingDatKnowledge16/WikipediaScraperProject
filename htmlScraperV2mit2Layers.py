@@ -166,7 +166,7 @@ class ScrapeLinks:
             for sublink in parentContainer.find_all('a', href=True):
                 sublinkHREF = sublink['href']
                 sublinkContainer.append(sublinkHREF)
-            sublinkContainer = list(set([f"{urlDomain}{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
+            sublinkContainer = list(set([getImportantPageInfo(f"{urlDomain}{sublinkHREF}") for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
             return sublinkContainer
 
         def getImportantPageInfo(url):
@@ -176,11 +176,14 @@ class ScrapeLinks:
             parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
             descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
             descParagraph = parentContainer.p.text
-            allPageInfo = dict(descImage=descImage,descParagraph=descParagraph)
+            allPageInfo = dict()
+            allPageInfo["url"] = url
+            allPageInfo["descImage"] = descImage
+            allPageInfo["descParagraph"] = descParagraph
             return allPageInfo 
     #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
         mainDict = dict()
-        mainDict["0"] = self.startURL
+        mainDict["0"] = getImportantPageInfo(self.startURL)
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
                 #create the items for the next laye.#r
@@ -188,6 +191,7 @@ class ScrapeLinks:
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [item["url"] for item in nextLayAllItems_writeSublinks]
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
@@ -221,7 +225,6 @@ class ScrapeLinks:
                 for mainDictItem in mainDictItems:
                     mainDictItem = list(mainDictItem)
                     mainDictValues = list(mainDict.values())
-                    mainDictKeys = list(mainDict.keys())
                     mainDictItemCount = mainDictValues.count(mainDictItem[1])
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
