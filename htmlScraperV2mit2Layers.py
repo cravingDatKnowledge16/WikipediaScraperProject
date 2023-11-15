@@ -24,9 +24,7 @@ import ssl
 startUrl = "https://de.wikipedia.org/wiki/Universum"
 
 def scrapeWikipediaLinks(url):
-    urlDomain = re.search(r"(?<=https:\/\/)\w+\.\w+\.\w+",url)
-    print(urlDomain)
-    return
+    urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",url).group()
     sublinkContainer = list()
     noSSLverifiy = ssl._create_unverified_context()
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
@@ -36,7 +34,7 @@ def scrapeWikipediaLinks(url):
         for sublink in containerItem.findAll('a', href=True):
             sublinkHREF = sublink['href']
             sublinkContainer.append(sublinkHREF)
-    sublinkContainer = list(set([f"https://{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
+    sublinkContainer = list(set([f"{urlDomain}{sublinkHREF}" for sublinkHREF in sublinkContainer if (("/wiki/" in sublinkHREF) & ("Datei:" not in sublinkHREF) & ("Hilfe:" not in sublinkHREF) & ("Wikipedia:" not in sublinkHREF) & ("Spezial:" not in sublinkHREF) & ("https:" not in sublinkHREF))]))
     return sublinkContainer
 
 def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
@@ -149,13 +147,13 @@ def divideWeirdly(el):
 def squareShit(x):
      return [pow(x,0),pow(x,2)]
 
-#TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
-scrapeWikipediaLinks(startUrl)
+TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
+
 
 #TADA = applyFuncRecurInDict(123,divideWeirdly,10)
 
-#print(f"TADA: {TADA}")
-#saveDictToTXT(TADA,"TADA")
+print(f"TADA: {TADA}")
+saveDictToTXT(TADA,"TADA")
 
 
 
