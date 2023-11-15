@@ -65,7 +65,8 @@ def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
                         for keysToPop in toPopList:
-                            pop = mainDict.pop(keysToPop)          
+                            pop = mainDict.pop(keysToPop)    
+            print(mainDict)
         else:
             currLay = 0
             while(True):
@@ -144,7 +145,7 @@ def DOIT():
     print(f"TADA: {TADA}")
     saveDictToTXT(TADA,"TADA")
 
-
+DOIT()
 
 
 
