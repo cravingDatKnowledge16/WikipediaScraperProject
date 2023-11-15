@@ -22,7 +22,10 @@ import ssl
 
 
 
+
 startUrl = "https://de.wikipedia.org/wiki/Universum"
+
+"""
 
 def scrapeWikipediaLinks(url):
     urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",url).group()
@@ -46,8 +49,6 @@ def getImportantPageInfo(url):
     descParagraph = parentContainer.p.text
     allPageInfo = dict(descImage=descImage,descParagraph=descParagraph)
     return allPageInfo 
-
-
 
 def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
     #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
@@ -120,6 +121,7 @@ def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
                 currLay+=1
         return mainDict
               
+"""
 def extractNumberAmount(text):
     allNumbers = re.findall(r"\d+",str(text))
     return len(allNumbers)
@@ -190,8 +192,8 @@ class ScrapeLinks:
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
-                nextLayAllItems_writeSublinks = [item["url"] for item in nextLayAllItems_writeSublinks]
+                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl])["url"] for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [item for item in nextLayAllItems_writeSublinks]
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
@@ -235,6 +237,12 @@ class ScrapeLinks:
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
         return mainDict
+    
+    
+test = ScrapeLinks(startUrl)
+test.scrape(2)
+
+print(test)
     
        
 
