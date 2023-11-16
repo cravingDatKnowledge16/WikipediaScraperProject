@@ -42,10 +42,15 @@ valueList = []
 for element in rawdata3:
     sitelist.append(rawdata3[element])
     valueList.append("1")
+    temp1 = False
     for elementOfrawdata3 in rawdata3:
         pos = rawdata3[elementOfrawdata3].rfind(",")
         if elementOfrawdata3[0:pos] == element:
             parentlist.append(rawdata3[elementOfrawdata3])
+            temp1 = True
+            break
+    if temp1 == False:
+        parentlist.append(rawdata3[element])
 
 data = dict(sites = sitelist, parents = parentlist, valueList = valueList)
 
