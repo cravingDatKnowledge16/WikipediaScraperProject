@@ -19,10 +19,13 @@ def dictNoDuplVal(dict):
 
 #print(dictToList(obj))
 
-print(set(list((11,2,5,676))))
+print(range(len([1,4,2,5])))
 
+def test(value):
+    return ("/wiki/" in value) & ("Datei:" not in value) & ("Hilfe:" not in value) & ("Wikipedia:" not in value) & ("Spezial:" not in value) & ("https:" not in value)
 
+def test2(value):
+    bannedWords = ["t","i","o"]
+    return [el not in value for el in bannedWords].count(False) != 0
 
-list2 = [1]
-
-print(list2[1:])
+print(test2("tno"))
