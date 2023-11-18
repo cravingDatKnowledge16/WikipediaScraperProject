@@ -62,7 +62,7 @@ def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
@@ -159,7 +159,7 @@ def squareShit(x):
 class ScrapeLinks:
     def __init__(self,startURL):
         self.startURL = startURL
-        self.result = dict()
+        self.allLinks = dict()
         self.isScraped = False
     def scrape(self,layerDepth = -1):
             
@@ -195,7 +195,7 @@ class ScrapeLinks:
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl[1]])[preEl[0]]["url"] for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the result as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl[1]])[preEl[0]]["url"] for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 nextLayAllItems_writeSublinks = [item for item in nextLayAllItems_writeSublinks]
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
@@ -241,18 +241,21 @@ class ScrapeLinks:
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
     def getLayer(self,targetLayer):
-        
-        if(targetLayer == Number):
-            layer = int(targetLayer)
-            allCurrLayElements = []
-            layerIsFound = False
-            for currItem in list(self.result.items()):
-                if(extractNumberAmount(currItem[0]) == targetLayer):
-                    layerIsFound = True
-                    allCurrLayElements.append(currItem[1])
-                else:
-                    if(layerIsFound == True):
-                        break
+        layer = int(targetLayer)
+        allTargetLayElements = []
+        layerIsFound = False
+        for allLayerItem in list(self.allLinks.items()):
+            if(extractNumberAmount(allLayerItem[0]) == targetLayer):
+                layerIsFound = True
+                allTargetLayElements.append(allLayerItem)
+            # break out of the loop, when all items of the wanted layer have been copied
+            elif(extractNumberAmount(allLayerItem[0]) != targetLayer and layerIsFound == True):
+                break
+        return allTargetLayElements
+    
+    def getParents(self,originLayer):
+        originLayer = int(originLayer)
+        allParentElements = []
                     
             
 
