@@ -10,12 +10,6 @@ obj = dict(name=1,tru=3,ihi=1)
 objKeys = list(obj.items())
 objInd = [x for x in enumerate(objKeys)]
 
-def dictToList(dict):
-    return [list(el) for el in list(dict.items())]
-
-def dictNoDuplVal(dict):
-    dictVal = list(dict.values())
-    pass 
 
 #print(dictToList(obj))
 
@@ -29,3 +23,8 @@ def test2(value):
     return [el not in value for el in bannedWords].count(False) != 0
 
 print(test2("tno"))
+
+
+list = [[0,1],[89,5],[20,7]]
+
+print([enumerate(el) for el in list])
