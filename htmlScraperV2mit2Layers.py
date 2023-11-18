@@ -240,11 +240,22 @@ class ScrapeLinks:
                 if(len(nextLayAllItems_writeSublinks) == 0):
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
-    def getLayer(self,layerOrElement):
-        if(layerOrElement == Number):
-            layerOrElement = int(layerOrElement)
-        elif(layerOrElement == String)
-            return [el for el in self.result if (len(re.findall(r"\d+",str(el))) == layerOrElement)]
+    def getLayer(self,targetLayer):
+        
+        if(targetLayer == Number):
+            layer = int(targetLayer)
+            allCurrLayElements = []
+            layerIsFound = False
+            for currItem in list(self.result.items()):
+                if(extractNumberAmount(currItem[0]) == targetLayer):
+                    layerIsFound = True
+                    allCurrLayElements.append(currItem[1])
+                else:
+                    if(layerIsFound == True):
+                        break
+                    
+            
+
     def getChildren
 test = ScrapeLinks(startUrl)
 test.scrape(2)
