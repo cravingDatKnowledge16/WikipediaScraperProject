@@ -256,6 +256,7 @@ class ScrapeLinks:
     def getParents(self,originLayer):
         originLayer = int(originLayer)
         allParentElements = []
+        for allLayerItem in list(self.all)
                     
             
 
