@@ -244,23 +244,31 @@ class ScrapeLinks:
         layer = int(targetLayer)
         allTargetLayElements = []
         layerIsFound = False
-        for allLayerItem in list(self.allLinks.items()):
-            if(extractNumberAmount(allLayerItem[0]) == targetLayer):
+        for allLinksItem in list(self.allLinks.items()):
+            if(extractNumberAmount(allLinksItem[0]) == targetLayer):
                 layerIsFound = True
-                allTargetLayElements.append(allLayerItem)
+                allTargetLayElements.append(allLinksItem)
             # break out of the loop, when all items of the wanted layer have been copied
-            elif(extractNumberAmount(allLayerItem[0]) != targetLayer and layerIsFound == True):
+            elif(extractNumberAmount(allLinksItem[0]) != targetLayer and layerIsFound == True):
                 break
         return allTargetLayElements
     
     def getParents(self,originLayer):
         originLayer = int(originLayer)
         allParentElements = []
-        for allLayerItem in list(self.all)
+        for allLinksItem in list(self.allLinks.items()):
+            if(extractNumberAmount(allLinksItem[0]) == originLayer):
+                break  
+            allParentElements.append(allLinksItem)
+        return allParentElements
                     
-            
-
-    def getChildren
+    def getChildren(self,originLayer):
+        originLayer = int(originLayer)
+        allChildrenElements = []
+        manipulatedAllLinks = [item for item in list(self.allLinks.items()) if (extractNumberAmount(item[0]))]
+        
+        
+        
 test = ScrapeLinks(startUrl)
 test.scrape(2)
 
