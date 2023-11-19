@@ -156,10 +156,14 @@ def squareShit(x):
 
 #DOIT()
 
+
+
+
 class ScrapeLinks:
     def __init__(self,startURL):
         self.startURL = startURL
         self.allLinks = dict()
+        self.allLinksItems = []
         self.isScraped = False
     def scrape(self,layerDepth = -1):
             
@@ -210,8 +214,8 @@ class ScrapeLinks:
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
-                        for keysToPop in toPopList:
-                            pop = mainDict.pop(keysToPop)  
+                        for keyToPop in toPopList:
+                            pop = mainDict.pop(keyToPop)  
             return mainDict
         else:
             currLay = 0
@@ -238,13 +242,14 @@ class ScrapeLinks:
                             pop = mainDict.pop(keysToPop)
                 #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
                 if(len(nextLayAllItems_writeSublinks) == 0):
+                    self.allLinksItems = list(mainDict.items())
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
     def getLayer(self,targetLayer):
-        layer = int(targetLayer)
+        targetLayer = int(targetLayer)
         allTargetLayElements = []
         layerIsFound = False
-        for allLinksItem in list(self.allLinks.items()):
+        for allLinksItem in self.allLinksItems:
             if(extractNumberAmount(allLinksItem[0]) == targetLayer):
                 layerIsFound = True
                 allTargetLayElements.append(allLinksItem)
@@ -256,7 +261,7 @@ class ScrapeLinks:
     def getParents(self,originLayer):
         originLayer = int(originLayer)
         allParentElements = []
-        for allLinksItem in list(self.allLinks.items()):
+        for allLinksItem in self.allLinksItems:
             if(extractNumberAmount(allLinksItem[0]) == originLayer):
                 break  
             allParentElements.append(allLinksItem)
@@ -264,8 +269,9 @@ class ScrapeLinks:
                     
     def getChildren(self,originLayer):
         originLayer = int(originLayer)
-        allChildrenElements = []
-        manipulatedAllLinks = [item for item in list(self.allLinks.items()) if (extractNumberAmount(item[0]))]
+        manipulatedAllLinks = [item for item in self.allLinksItems if (extractNumberAmount(item[0]) > item[0])]
+
+            
         
         
         
