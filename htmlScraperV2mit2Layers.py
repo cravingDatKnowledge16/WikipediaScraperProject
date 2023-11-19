@@ -26,7 +26,6 @@ from threading import Thread
 
 
 
-startUrl = "https://de.wikipedia.org/wiki/Universum"
 
 """
 
@@ -158,32 +157,34 @@ def squareShit(x):
 #DOIT()
 
 
+URL = "https://de.wikipedia.org/wiki/Universum"
 
 
 class ScrapeLinks:
-    def __init__(self,startURL):
-        self.startURL = startURL
+    def __init__(self,stURL):
+        self.startURL = stURL
         self.allLinks = dict()
         self.allLinksItems = []
         self.isScraped = False
     def isObjectScraped(self):
         if(len(self.allLinksItems) == 0):
             raise ReferenceError("Link has not been scraped yet")
+        startingTime = datetime.datetime.now()
+        print(f"Starting time: {startingTime}")
     def scrape(self,layerDepth = -1):
-            
-        def getImportantPageInfo(url):
+        def getImportantPageInfo(self,URL):
             descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
             descParagraph = parentContainer.p.text
-            allPageInfo = dict(url=url,descImage=descImage,descParagraph=descParagraph)
+            allPageInfo = dict(url=URL,descImage=descImage,descParagraph=descParagraph)
             return allPageInfo 
-        def scrapeWikipediaLinks(url):
+        def scrapeWikipediaLinks(self,url):
             nonlocal openedPage,wikipediaPageHTML,parentContainer
-            openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
+            openedPage = request.urlopen(url,context=ssl._create_unverified_context())
             wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
             parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
-            urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",url).group()
+            urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             sublinkContainer = [f"{urlDomain}{subLink['href']}" for subLink in parentContainer.find_all("a",href=True) if (("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
-            pageInfoContainer = [getImportantPageInfo(subLink) for subLink in sublinkContainer ]
+            pageInfoContainer = [self.getImportantPageInfo(subLink) for subLink in sublinkContainer ]
             pageInfoContainer = list(dict.fromkeys(pageInfoContainer).keys())
             return pageInfoContainer
         
@@ -192,7 +193,7 @@ class ScrapeLinks:
         wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
         parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
         mainDict = dict()
-        mainDict["0"] = getImportantPageInfo(self.startURL)
+        mainDict["0"] = getImportantPageInfo(self,self.startURL)
 
 
 
@@ -282,7 +283,7 @@ class ScrapeLinks:
         
         
         
-test = ScrapeLinks(startUrl)
+test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
 test.scrape(2)
 
 print(test)
