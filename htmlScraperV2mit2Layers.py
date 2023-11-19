@@ -270,6 +270,7 @@ class ScrapeLinks:
     def getChildren(self,originLayer):
         originLayer = int(originLayer)
         manipulatedAllLinks = [item for item in self.allLinksItems if (extractNumberAmount(item[0]) > item[0])]
+        return manipulatedAllLinks
 
             
         
