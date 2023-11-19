@@ -21,6 +21,7 @@ import re
 import datetime
 import numpy
 import ssl
+from threading import Thread
 
 
 
@@ -165,6 +166,9 @@ class ScrapeLinks:
         self.allLinks = dict()
         self.allLinksItems = []
         self.isScraped = False
+    def isObjectScraped(self):
+        if(len(self.allLinksItems) == 0):
+            raise ReferenceError("Link has not been scraped yet")
     def scrape(self,layerDepth = -1):
             
         def getImportantPageInfo(url):
@@ -195,12 +199,11 @@ class ScrapeLinks:
         #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
-                #create the items for the next laye.#r
+                #create the items for the next layer
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl[1]])[preEl[0]]["url"] for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                nextLayAllItems_writeSublinks = [item for item in nextLayAllItems_writeSublinks]
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
@@ -246,6 +249,7 @@ class ScrapeLinks:
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
     def getLayer(self,targetLayer):
+        self.isObjectScraped()
         targetLayer = int(targetLayer)
         allTargetLayElements = []
         layerIsFound = False
@@ -259,6 +263,7 @@ class ScrapeLinks:
         return allTargetLayElements
     
     def getParents(self,originLayer):
+        self.isObjectScraped()
         originLayer = int(originLayer)
         allParentElements = []
         for allLinksItem in self.allLinksItems:
@@ -268,11 +273,12 @@ class ScrapeLinks:
         return allParentElements
                     
     def getChildren(self,originLayer):
+        self.isObjectScraped()
         originLayer = int(originLayer)
         manipulatedAllLinks = [item for item in self.allLinksItems if (extractNumberAmount(item[0]) > item[0])]
         return manipulatedAllLinks
 
-            
+
         
         
         
