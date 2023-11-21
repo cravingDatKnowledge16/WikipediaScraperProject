@@ -30,7 +30,7 @@ for i in range(len(rawdata)):
 rawdata3 = dict()
 
 #for i in range(0, len(rawdata2), 2):
-for i in range(0, 500, 2):
+for i in range(0, 3000, 2):
     rawdata3[f"{rawdata2[i]}"] = f"{re.sub(pattern='https://de.wikipedia.org/wiki/', repl='', string=rawdata2[i+1])}"
 #print(rawdata3)
 
