@@ -161,13 +161,13 @@ URL = "https://de.wikipedia.org/wiki/Universum"
 
 
 class ScrapeLinks:
-    def __init__(self,staURL):
-        self.startURL = staURL
+    def __init__(self,startURL):
+        self.startURL = startURL
         self.allLinks = dict()
         self.allLinksItems = []
         self.isScraped = False
         self.bannedWordsForLink = ["Datei: ","Hilfe: ","Wikipedia: ","Spezial: ","https:"]
-    def __repr__(self,returnedValue):
+    def __str__(self,returnedValue):
         self.returnedValue = returnedValue
         return self.returnedValue
     def isObjectScraped(self):
@@ -190,15 +190,15 @@ class ScrapeLinks:
             openedPage = request.urlopen(url,context=ssl._create_unverified_context())
             wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
             
-            print("TEST: ","t" in str(wikipediaPageHTML.find_all(role="navigation")))
-            return
+            #print("TEST: ","t" )
+            #return
             
             parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             print("parentContainerAllLinks: ",parentContainerAllLinks)
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             print("urlDomain: ",urlDomain)
-            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsForLink) or "/wiki/" in subLink or subLink not in wikipediaPageHTML.find_all(role="navigation"))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
+            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsForLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
             print("wantedLinksContainer: ",wantedLinksContainer)
             pageInfoContainer = [getImportantPageInfo(self,subLink) for subLink in wantedLinksContainer ]
             print("pageInfoContainer: ",pageInfoContainer)
