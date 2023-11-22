@@ -22,6 +22,7 @@ import datetime
 import numpy
 import ssl
 from threading import Thread
+import os
 
 
 
@@ -181,13 +182,21 @@ class ScrapeLinks:
             return [word not in value for word in checkList].count(False) != 0
         
         def getImportantPageInfo(self,URL):
-            descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
-            descParagraph = parentContainer.p.text
+            nonlocal openedPage,wikipediaPageHTML
+            try:
+                descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
+            except:
+                descImage = "None"
+            descParagraph = self.parentContainer.p.text
             allPageInfo = dict(url=URL,descImage=descImage,descParagraph=descParagraph)
             return allPageInfo 
         def scrapeWikipediaLink(self,url):
-            nonlocal openedPage,wikipediaPageHTML,parentContainer
-            openedPage = request.urlopen(url,context=ssl._create_unverified_context())
+            nonlocal openedPage,wikipediaPageHTML
+            try:
+                openedPage = request.urlopen(url,context=ssl._create_unverified_context())
+            except:
+                print("THE END")
+                os.EX_OK
             wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
             
             #print("TEST: ","t" )
@@ -202,14 +211,14 @@ class ScrapeLinks:
             print("wantedLinksContainer: ",wantedLinksContainer)
             pageInfoContainer = [getImportantPageInfo(self,subLink) for subLink in wantedLinksContainer ]
             print("pageInfoContainer: ",pageInfoContainer)
-            pageInfoContainer = list(dict.fromkeys(pageInfoContainer).keys())
+            #pageInfoContainer = list(dict.fromkeys(pageInfoContainer).keys())
             print("pageInfoContainer: ",pageInfoContainer)
             return pageInfoContainer
         
         #open and access start-url page
         openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-        parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
+        self.parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
         self.mainDict = dict()
         self.mainDict["0"] = getImportantPageInfo(self,self.startURL)
 
