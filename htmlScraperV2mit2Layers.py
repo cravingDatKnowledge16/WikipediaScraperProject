@@ -204,7 +204,7 @@ class ScrapeLinks:
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [scrapeWikipediaLinks(mainDict[preEl[1]])[preEl[0]]["url"] for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [self.scrapeWikipediaLinks(preEl[1]) for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
