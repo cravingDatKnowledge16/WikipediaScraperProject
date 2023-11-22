@@ -16,7 +16,7 @@ objInd = [x for x in enumerate(objKeys)]
 print(range(len([1,4,2,5])))
 
 def test(value):
-    return ("/wiki/" in value) & ("Datei:" not in value) & ("Hilfe:" not in value) & ("Wikipedia:" not in value) & ("Spezial:" not in value) & ("https:" not in value)
+    return ("/wiki/" in value) or ("Datei:" not in value) or ("Hilfe:" not in value) or ("Wikipedia:" not in value) or ("Spezial:" not in value) or ("https:" not in value)
 
 def test2(value):
     bannedWords = ["t","i","o"]
