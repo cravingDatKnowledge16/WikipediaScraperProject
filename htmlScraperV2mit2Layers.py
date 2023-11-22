@@ -166,7 +166,7 @@ class ScrapeLinks:
         self.allLinks = dict()
         self.allLinksItems = []
         self.isScraped = False
-        self.bannedWordsForLink = ["Datei"]
+        self.bannedWordsForLink = ["Datei: ","Hilfe: ","Wikipedia: ","Spezial: ","https:"]
     def __repr__(self,returnedValue):
         self.returnedValue = returnedValue
         return self.returnedValue
@@ -177,8 +177,8 @@ class ScrapeLinks:
         print(f"Starting time: {startingTime}")
     def scrape(self,layerDepth = -1):
         
-        def areInWord(self,value,list):
-            return [word not in value for word in list].count(False) != 0
+        def objectsInWord(self,value,checkList):
+            return [word not in value for word in checkList].count(False) != 0
         
         def getImportantPageInfo(self,URL):
             descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
@@ -189,14 +189,18 @@ class ScrapeLinks:
             nonlocal openedPage,wikipediaPageHTML,parentContainer
             openedPage = request.urlopen(url,context=ssl._create_unverified_context())
             wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
+            
+            print("TEST: ","t" in str(wikipediaPageHTML.find_all(role="navigation")))
+            return
+            
             parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             print("parentContainerAllLinks: ",parentContainerAllLinks)
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             print("urlDomain: ",urlDomain)
-            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
+            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsForLink) or "/wiki/" in subLink or subLink not in wikipediaPageHTML.find_all(role="navigation"))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
             print("wantedLinksContainer: ",wantedLinksContainer)
-            pageInfoContainer = [self.getImportantPageInfo(subLink) for subLink in wantedLinksContainer ]
+            pageInfoContainer = [getImportantPageInfo(self,subLink) for subLink in wantedLinksContainer ]
             print("pageInfoContainer: ",pageInfoContainer)
             pageInfoContainer = list(dict.fromkeys(pageInfoContainer).keys())
             print("pageInfoContainer: ",pageInfoContainer)
