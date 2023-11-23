@@ -197,6 +197,7 @@ class ScrapeLinks:
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not areObjectsInObject(self,subLink,self.bannedWordsInLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
+            print("wantedLinksContainer: ",wantedLinksContainer)
             wantedPageInfoContainer = list()
             for subLink in wantedLinksContainer:
                 openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
