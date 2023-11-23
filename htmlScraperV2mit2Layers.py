@@ -50,9 +50,9 @@ def getImportantPageInfo(url):
     openedPage = urllib.request.urlopen(url,context=noSSLverifiy)
     wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
     parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
-    descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
-    descParagraph = parentContainer.p.text
-    allPageInfo = dict(descImage=descImage,descParagraph=descParagraph)
+    descImg = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
+    descTxt = parentContainer.p.text
+    allPageInfo = dict(descImg=descImg,descTxt=descTxt)
     return allPageInfo 
 
 def applyFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
@@ -169,8 +169,7 @@ class ScrapeLinks:
         self.iter = 0
         self.allLinks = dict()
         self.allLinksItems = []
-        #openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
-        #wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
+        self.scrapedLinksIter = 0
         self.isScraped = False
         self.bannedWordsInLink = ["Datei: ","Hilfe: ","Wikipedia: ","Spezial: ","https:"]
         self.returnedValue = str()
@@ -181,51 +180,47 @@ class ScrapeLinks:
     def isObjectScraped(self):
         if(len(self.allLinksItems) == 0):
             raise ReferenceError("Link has not been scraped yet")
-        startingTime = time.perf_counter()
-        print(f"Starting time: {startingTime}")
         
     def scrape(self,layerDepth = -1):
-        openedParentPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
-        wikipediaPageHTML = BeautifulSoup(openedParentPage, "html.parser")
-        
-        def objectsInWord(self,value,checkList):
+        #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
+        def areObjectsInObject(self,value,checkList):
+            #returns True, if an object 
             return [word not in value for word in checkList].count(False) != 0
-        
-
         def scrapeWikipediaLink(self,URL):
             try:
-                nonlocal openedParentPage
                 openedParentPage = request.urlopen(URL,context=ssl._create_unverified_context())
             except:
-                print("THE END")
+                print("End of link structure has been reached")
                 os.abort()
+            parentWikiPage = BeautifulSoup(openedParentPage, "html.parser")
+            parentContainer = parentWikiPage.find(class_="mw-parser-output")
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
-            parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
-            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsInLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
+            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not areObjectsInObject(self,subLink,self.bannedWordsInLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
             wantedPageInfoContainer = list()
             for subLink in wantedLinksContainer:
                 openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
                 childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
                 try:
-                    descImage = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
+                    descImg = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
                 except:
-                    descImage = "None"
-                descParagraph = childWikiPage.find(class_="mw-parser-output").p.text
-                wantedPageInfoContainer.append(dict(URL=subLink,descImage=descImage,descParagraph=descParagraph))
-
+                    descImg = "None"
+                descTxt = childWikiPage.find(class_="mw-parser-output").p.text
+                wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
             return wantedPageInfoContainer
-        #open and access start-url page
-        self.mainDict = dict()
-        self.mainDict["0"] = dict(URL=)
-
-
-
-        #applies a function to an element (startElement) recursivly and stores it in a dictionary, where the key corresponds to the index of the element in a tree structure 
+        #open and access the wanted Wikipedia page
+        openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
+        wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
+        #create and setup the dictionary
+        mainDict = dict()
+        firstEntryDescImg = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
+        firstEntryDescTxt = wikipediaPageHTML.find(class_='mw-parser-output').p.text
+        mainDict["0"] = dict(URL=self.startURL,descImg=firstEntryDescImg,descTxt=firstEntryDescTxt)
+        #
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
                 #create the items for the next layer
-                mainDictItems = [list(item) for item in list(self.mainDict.items())]
+                mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 print("currLayAllItems_knowItemParents: ",currLayAllItems_knowItemParents)
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
@@ -233,30 +228,27 @@ class ScrapeLinks:
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        self.mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-                        self.iter+=1
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
+                        self.scrapedLinksIter+=1
                         print(f"Process state: {self.iter}, {nextElLayPos}, {currLayKeyIndex}")
                 #eliminate all duplicates to avoid infinite recursion    
-                mainDictItems = [list(item) for item in list(self.mainDict.items())]
+                mainDictItems = [list(item) for item in list(mainDict.items())]
                 self.iter = 0
                 for mainDictItem in mainDictItems:
                     mainDictItem = list(mainDictItem)
-                    mainDictValues = list(self.mainDict.values())
+                    mainDictValues = list(mainDict.values())
                     mainDictItemCount = mainDictValues.count(mainDictItem[1])
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
                         for keyToPop in toPopList:
-                            pop = self.mainDict.pop(keyToPop)  
-                            self.iter+=1
-                            print("TEST: ",self.iter)
-                #self.__repr__(self.mainDict)
+                            pop = mainDict.pop(keyToPop)  
             print("DONE")
-            return self.mainDict
+            return mainDict
         else:
             currLay = 0
             while(True):
-                mainDictItems = [list(item) for item in list(self.mainDict.items())]
+                mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 #scrape the links from the previous layer and write them onto a temporary matrix
@@ -264,22 +256,22 @@ class ScrapeLinks:
                 #copy all links from current layer onto the main dictionairies 
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        self.mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
+                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
                 #eliminate all duplicates to avoid infinite recursion    
-                mainDictItems = [list(item) for item in list(self.mainDict.items())]
+                mainDictItems = [list(item) for item in list(mainDict.items())]
                 for mainDictItem in mainDictItems:
                     mainDictItem = list(mainDictItem)
-                    mainDictValues = list(self.mainDict.values())
+                    mainDictValues = list(mainDict.values())
                     mainDictItemCount = mainDictValues.count(mainDictItem[1])
                     if(mainDictItemCount >= 2): #if a value occurs more than 2 times
                         toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
                         toPopList.pop(0)
                         for keysToPop in toPopList:
-                            pop = self.mainDict.pop(keysToPop)
+                            pop = mainDict.pop(keysToPop)
                 #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
                 if(len(nextLayAllItems_writeSublinks) == 0):
-                    self.allLinksItems = list(self.mainDict.items())
-                    return dict(dict = self.mainDict,stopLayer = currLay)
+                    self.allLinksItems = list(mainDict.items())
+                    return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
     def getLayer(self,targetLayer):
         self.isObjectScraped()
