@@ -23,6 +23,8 @@ import numpy
 import ssl
 from threading import Thread
 import os
+import time
+import string as st
 
 
 
@@ -167,52 +169,55 @@ class ScrapeLinks:
         self.iter = 0
         self.allLinks = dict()
         self.allLinksItems = []
+        #openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
+        #wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
         self.isScraped = False
-        self.bannedWordsForLink = ["Datei: ","Hilfe: ","Wikipedia: ","Spezial: ","https:"]
+        self.bannedWordsInLink = ["Datei: ","Hilfe: ","Wikipedia: ","Spezial: ","https:"]
+        self.returnedValue = str()
     def __str__(self,returnedValue):
         self.returnedValue = returnedValue
         return self.returnedValue
+    
     def isObjectScraped(self):
         if(len(self.allLinksItems) == 0):
             raise ReferenceError("Link has not been scraped yet")
-        startingTime = datetime.datetime.now()
+        startingTime = time.perf_counter()
         print(f"Starting time: {startingTime}")
+        
     def scrape(self,layerDepth = -1):
+        openedParentPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
+        wikipediaPageHTML = BeautifulSoup(openedParentPage, "html.parser")
         
         def objectsInWord(self,value,checkList):
             return [word not in value for word in checkList].count(False) != 0
         
-        def getImportantPageInfo(self,URL):
-            nonlocal openedPage,wikipediaPageHTML
+
+        def scrapeWikipediaLink(self,URL):
             try:
-                descImage = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
-            except:
-                descImage = "None"
-            descParagraph = self.parentContainer.p.text
-            allPageInfo = dict(url=URL,descImage=descImage,descParagraph=descParagraph)
-            return allPageInfo 
-        def scrapeWikipediaLink(self,url):
-            nonlocal openedPage,wikipediaPageHTML
-            try:
-                openedPage = request.urlopen(url,context=ssl._create_unverified_context())
+                nonlocal openedParentPage
+                openedParentPage = request.urlopen(URL,context=ssl._create_unverified_context())
             except:
                 print("THE END")
-                os.EX_OK
-            wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-            
-            #print("TEST: ","t" )
-            #return
+                os.abort()
+            urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             
             parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
-            #print("parentContainerAllLinks: ",parentContainerAllLinks)
-            urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
-            #print("urlDomain: ",urlDomain)
-            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsForLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
-            #print("wantedLinksContainer: ",wantedLinksContainer)
+            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsInLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
+            wantedPageInfoContainer = list()
+            for subLinkIndex in range(len(wantedLinksContainer)):
+                openedChildPage = request.urlopen(wantedLinksContainer[subLinkIndex],context=ssl._create_unverified_context())
+                childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
+                try:
+                    descImage = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
+                except:
+                    descImage = "None"
+                descParagraph = childWikiPage.find(class_="mw-parser-output") p.text
+                wantedPageInfoContainer.append(dict(url=URL,descImage=descImage,descParagraph=descParagraph))
+
+            
             pageInfoContainer = [getImportantPageInfo(self,subLink) for subLink in wantedLinksContainer] #TASK: remove duplicates from wantedLinksContainer without reordering it
-            print(type(pageInfoContainer))
-            #pageInfoContainer = list(set(pageInfoContainer))
+
             return pageInfoContainer
         #open and access start-url page
         openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
@@ -229,6 +234,7 @@ class ScrapeLinks:
                 #create the items for the next layer
                 mainDictItems = [list(item) for item in list(self.mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
+                print("currLayAllItems_knowItemParents: ",currLayAllItems_knowItemParents)
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["url"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
