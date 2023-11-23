@@ -200,31 +200,24 @@ class ScrapeLinks:
                 print("THE END")
                 os.abort()
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
-            
             parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not objectsInWord(self,subLink,self.bannedWordsInLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
             wantedPageInfoContainer = list()
-            for subLinkIndex in range(len(wantedLinksContainer)):
-                openedChildPage = request.urlopen(wantedLinksContainer[subLinkIndex],context=ssl._create_unverified_context())
+            for subLink in wantedLinksContainer:
+                openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
                 childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
                 try:
                     descImage = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
                 except:
                     descImage = "None"
-                descParagraph = childWikiPage.find(class_="mw-parser-output") p.text
-                wantedPageInfoContainer.append(dict(url=URL,descImage=descImage,descParagraph=descParagraph))
+                descParagraph = childWikiPage.find(class_="mw-parser-output").p.text
+                wantedPageInfoContainer.append(dict(URL=subLink,descImage=descImage,descParagraph=descParagraph))
 
-            
-            pageInfoContainer = [getImportantPageInfo(self,subLink) for subLink in wantedLinksContainer] #TASK: remove duplicates from wantedLinksContainer without reordering it
-
-            return pageInfoContainer
+            return wantedPageInfoContainer
         #open and access start-url page
-        openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
-        wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-        self.parentContainer = wikipediaPageHTML.find(class_="mw-parser-output")
         self.mainDict = dict()
-        self.mainDict["0"] = getImportantPageInfo(self,self.startURL)
+        self.mainDict["0"] = dict(URL=)
 
 
 
@@ -236,7 +229,7 @@ class ScrapeLinks:
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 print("currLayAllItems_knowItemParents: ",currLayAllItems_knowItemParents)
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["url"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
