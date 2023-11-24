@@ -12,7 +12,7 @@ RULES:
 """
 
 
-from numbers import Number
+import numbers
 from tokenize import String
 from urllib import request
 from bs4 import BeautifulSoup
@@ -181,7 +181,7 @@ class ScrapeLinks:
         if(len(self.allLinksItems) == 0):
             raise ReferenceError("Link has not been scraped yet")
         
-    def scrape(self,layerDepth = -1):
+    def scrape(self, layerDepth = False, maxElPerLay = False):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         def areObjectsInObject(self,value,checkList):
             #returns True, if an object 
@@ -196,20 +196,29 @@ class ScrapeLinks:
             parentContainer = parentWikiPage.find(class_="mw-parser-output")
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
-            wantedLinksContainer = [f"{urlDomain}{subLink}" for subLink in parentContainerAllLinks if (not areObjectsInObject(self,subLink,self.bannedWordsInLink) or "/wiki/" in subLink or subLink not in str(wikipediaPageHTML.find_all(role="navigation")))]  #(("/wiki/" in subLink) & ("Datei:" not in subLink) & ("Hilfe:" not in subLink) & ("Wikipedia:" not in subLink) & ("Spezial:" not in subLink) & ("https:" not in subLink))]
-            
-            print("wantedLinksContainer: ",wantedLinksContainer)
-            wantedPageInfoContainer = list()
-            for subLink in wantedLinksContainer:
-                openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
-                childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
-                try:
-                    descImg = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
-                except:
-                    descImg = "None"
-                descTxt = childWikiPage.find(class_="mw-parser-output").p.text
-                wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
+            wantedPageInfoContainer = []
+            if(maxElPerLay is numbers.Number):
+               parentContainerAllLinks = parentContainerAllLinks[:maxElPerLay-1]
+            for subLink in parentContainerAllLinks:
+                hasWantedWords = "/wiki/" in subLink
+                hasBannedWords = areObjectsInObject(self,subLink,self.bannedWordsInLink)
+                isInNavRole = subLink in str(wikipediaPageHTML.find_all(role="navigation"))
+                isInImgDesc = subLink in str(wikipediaPageHTML.find_all(class_="wikitable"))
+                if(hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc):
+                    #wantedLinksContainer.append(f"{urlDomain}{subLink}")
+                    subLink = f"{urlDomain}{subLink}"
+                    openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
+                    childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
+                    try:
+                        descImg = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
+                    except:
+                        descImg = "None"
+                    #descTxt = childWikiPage.find(class_="mw-parser-output").p.text
+                    descTxt = "Currently None"
+                    wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
+            print("wantedPageInfoContainer: ",wantedPageInfoContainer)
             return wantedPageInfoContainer
+        
         #open and access the wanted Wikipedia page
         openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
@@ -310,7 +319,7 @@ class ScrapeLinks:
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2)
+z = test.scrape(2,10)
 
 print(z)
     
