@@ -197,8 +197,9 @@ class ScrapeLinks:
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             wantedPageInfoContainer = []
-            if(maxElPerLay is numbers.Number):
+            if(maxElPerLay is not False and maxElPerLay > 0):
                parentContainerAllLinks = parentContainerAllLinks[:maxElPerLay-1]
+               print("parentContainerAllLinks: ",parentContainerAllLinks)
             for subLink in parentContainerAllLinks:
                 hasWantedWords = "/wiki/" in subLink
                 hasBannedWords = areObjectsInObject(self,subLink,self.bannedWordsInLink)
@@ -232,7 +233,18 @@ class ScrapeLinks:
             for currLay in range(layerDepth): 
                 #create the items for the next layer
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
+                print("mainDictItems: ",mainDictItems)
+                #currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
+                currLayAllItems_knowItemParents = []
+                for item in mainDictItems:
+                    """
+                    print("item: ",item)
+                    print("item[0]: ",extractNumberAmount(item[0]))
+                    print("currLay+1: ",currLay+1)
+                    """
+                    print("TESTING: ",extractNumberAmount(item[0]) == currLay)
+                    if(extractNumberAmount(item[0]) == currLay):
+                        currLayAllItems_knowItemParents.append(item)
                 print("currLayAllItems_knowItemParents: ",currLayAllItems_knowItemParents)
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
