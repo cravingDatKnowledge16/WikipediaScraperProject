@@ -142,6 +142,7 @@ def saveDictToTXT(dict, docName):
     docName = re.sub(r"[\s\.,]", '', docName)
     dictKeys = [item[0] for item in list(dict.items())]
     dictValues = [item[1] for item in list(dict.items())]
+    open(f"results/{docName}.txt","x")
     with open(f'results/{docName}.txt', 'w') as tempFile:
         for itemIndex in range(len(dict)):
             tempFile.write(f"  {dictKeys[itemIndex]} : {dictValues[itemIndex]}\n")
@@ -168,8 +169,7 @@ class ScrapeLinks:
     def __init__(self,startURL):
         self.startURL = startURL
         self.iter = 0
-        self.allLinks = dict()
-        self.allLinksItems = []
+        self.resultDict = dict()
         self.scrapedLinksIter = 0
         self.isScraped = False
         self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]
@@ -221,7 +221,6 @@ class ScrapeLinks:
                     except:
                         descTxt = None
                     wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
-            print("wantedPageInfoContainer: ",wantedPageInfoContainer)
             return wantedPageInfoContainer
         
         #open and access the wanted Wikipedia page
@@ -236,7 +235,6 @@ class ScrapeLinks:
             for currLay in range(layerDepth): 
                 #create the items for the next layer
                 mainDictItems = [list(item) for item in list(mainDict.items())]
-                print("mainDictItems: ",mainDictItems)
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
@@ -245,7 +243,6 @@ class ScrapeLinks:
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
                         self.scrapedLinksIter+=1
-                        print(f"Process state: {self.iter}, {nextElLayPos}, {currLayKeyIndex}")
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 self.iter = 0
@@ -258,6 +255,7 @@ class ScrapeLinks:
                         toPopList.pop(0)
                         for keyToPop in toPopList:
                             pop = mainDict.pop(keyToPop)  
+            self.resultDict = mainDict
             print("DONE")
             print("MAINDICT: ",mainDict)
             return mainDict
@@ -286,7 +284,7 @@ class ScrapeLinks:
                             pop = mainDict.pop(keysToPop)
                 #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
                 if(len(nextLayAllItems_writeSublinks) == 0):
-                    self.allLinksItems = list(mainDict.items())
+                    self.resultDict = mainDict
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
                 
@@ -319,15 +317,33 @@ class ScrapeLinks:
         originLayer = int(originLayer)
         manipulatedAllLinks = [item for item in self.allLinksItems if (extractNumberAmount(item[0]) > item[0])]
         return manipulatedAllLinks
+    
+    def save(self, fileName, fileType = ".txt", filePath = "results/"):
+        fileName = re.sub(r"[\s\.,\/]", '', fileName)
+        resultKeys = [key for key in list(self.resultDict.keys())]
+        resultVals = [val for val in list(self.resultDict.values())]
+        fullFile = f"{fileName}{fileType}"
+        file = open(fullFile,"x")
+        file = open(fullFile,"a")
+        file.write(f"{fileName.upper()} \n Extraction of sublinks from '{self.startURL}' at {datetime.date} {datetime.time}: \n\n")
+        for itemIndex in range(len(self.resultDict)):
+            file.write(f"  {resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
+        file.close()
+        
 
 
         
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,40)
+z = test.scrape(2,27)
+y = test.save("test")
+
+
 
 print(z)
+
+print(y)
     
        
 
