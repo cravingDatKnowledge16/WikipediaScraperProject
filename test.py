@@ -24,7 +24,7 @@ def test2(value):
 
 #print(test2("tno"))
 
-
+print([1,4,2,9,0,4,6][:3])
 
 
 def areObjectsInObject(value,checkList):

@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 import array as arr
 import re
 import datetime
-import numpy
+import numpy as np
 import ssl
 from threading import Thread
 import os
@@ -178,10 +178,11 @@ class ScrapeLinks:
         return self.returnedValue
     
     def isObjectScraped(self):
-        if(len(self.allLinksItems) == 0):
+        if(not self.isScraped):
             raise ReferenceError("Link has not been scraped yet")
         
     def scrape(self, layerDepth = False, maxElPerLay = False):
+        self.isScraped = True
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         def areObjectsInObject(self,value,checkList):
             #returns True, if an object 
@@ -198,15 +199,19 @@ class ScrapeLinks:
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             wantedPageInfoContainer = []
             if(maxElPerLay is not False and maxElPerLay > 0):
-               parentContainerAllLinks = parentContainerAllLinks[:maxElPerLay-1]
-               print("parentContainerAllLinks: ",parentContainerAllLinks)
+               parentContainerAllLinks = parentContainerAllLinks[:maxElPerLay]
+               print("parentContainerAllLinks: ",len(parentContainerAllLinks))
             for subLink in parentContainerAllLinks:
+                print("subLink: ",subLink)
                 hasWantedWords = "/wiki/" in subLink
                 hasBannedWords = areObjectsInObject(self,subLink,self.bannedWordsInLink)
                 isInNavRole = subLink in str(wikipediaPageHTML.find_all(role="navigation"))
                 isInImgDesc = subLink in str(wikipediaPageHTML.find_all(class_="wikitable"))
-                if(hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc):
-                    #wantedLinksContainer.append(f"{urlDomain}{subLink}")
+                isWantedSubLink = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
+                print("wantedSubLink: ",isWantedSubLink)
+                print(f"{hasWantedWords} {hasBannedWords} {isInNavRole} {isInImgDesc}")
+                if(isWantedSubLink):
+                    print("APPENDED")
                     subLink = f"{urlDomain}{subLink}"
                     openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
                     childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
@@ -214,8 +219,10 @@ class ScrapeLinks:
                         descImg = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
                     except:
                         descImg = "None"
-                    #descTxt = childWikiPage.find(class_="mw-parser-output").p.text
-                    descTxt = "Currently None"
+                    try:
+                        descTxt = childWikiPage.find(class_="mw-parser-output").p.text
+                    except:
+                        descTxt = "None"
                     wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
             print("wantedPageInfoContainer: ",wantedPageInfoContainer)
             return wantedPageInfoContainer
@@ -234,18 +241,7 @@ class ScrapeLinks:
                 #create the items for the next layer
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 print("mainDictItems: ",mainDictItems)
-                #currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
-                currLayAllItems_knowItemParents = []
-                for item in mainDictItems:
-                    """
-                    print("item: ",item)
-                    print("item[0]: ",extractNumberAmount(item[0]))
-                    print("currLay+1: ",currLay+1)
-                    """
-                    print("TESTING: ",extractNumberAmount(item[0]) == currLay)
-                    if(extractNumberAmount(item[0]) == currLay):
-                        currLayAllItems_knowItemParents.append(item)
-                print("currLayAllItems_knowItemParents: ",currLayAllItems_knowItemParents)
+                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
@@ -331,7 +327,7 @@ class ScrapeLinks:
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,10)
+z = test.scrape(2,60)
 
 print(z)
     
