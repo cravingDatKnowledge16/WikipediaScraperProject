@@ -25,6 +25,7 @@ from threading import Thread
 import os
 import time
 import string as st
+import json
 
 
 
@@ -173,6 +174,7 @@ class ScrapeLinks:
         self.isScraped = False
         self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]
         self.returnedValue = str()
+        
     def __str__(self,returnedValue):
         self.returnedValue = returnedValue
         return self.returnedValue
@@ -182,8 +184,8 @@ class ScrapeLinks:
             raise ReferenceError("Link has not been scraped yet")
         
     def scrape(self, layerDepth = False, maxElPerLay = False):
-        self.isScraped = True
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
+        self.isScraped = True
         def areObjectsInObject(self,value,checkList):
             #returns True, if an object 
             return [word not in value for word in checkList].count(False) != 0
@@ -230,7 +232,6 @@ class ScrapeLinks:
         firstEntryDescImg = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
         firstEntryDescTxt = wikipediaPageHTML.find(class_='mw-parser-output').p.text
         mainDict["0"] = dict(URL=self.startURL,descImg=firstEntryDescImg,descTxt=firstEntryDescTxt)
-        #
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
                 #create the items for the next layer
@@ -258,6 +259,7 @@ class ScrapeLinks:
                         for keyToPop in toPopList:
                             pop = mainDict.pop(keyToPop)  
             print("DONE")
+            print("MAINDICT: ",mainDict)
             return mainDict
         else:
             currLay = 0
@@ -287,6 +289,7 @@ class ScrapeLinks:
                     self.allLinksItems = list(mainDict.items())
                     return dict(dict = mainDict,stopLayer = currLay)
                 currLay+=1
+                
     def getLayer(self,targetLayer):
         self.isObjectScraped()
         targetLayer = int(targetLayer)
@@ -322,7 +325,7 @@ class ScrapeLinks:
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,60)
+z = test.scrape(2,40)
 
 print(z)
     
