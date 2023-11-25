@@ -200,29 +200,24 @@ class ScrapeLinks:
             wantedPageInfoContainer = []
             if(maxElPerLay is not False and maxElPerLay > 0):
                parentContainerAllLinks = parentContainerAllLinks[:maxElPerLay]
-               print("parentContainerAllLinks: ",len(parentContainerAllLinks))
             for subLink in parentContainerAllLinks:
-                print("subLink: ",subLink)
                 hasWantedWords = "/wiki/" in subLink
                 hasBannedWords = areObjectsInObject(self,subLink,self.bannedWordsInLink)
                 isInNavRole = subLink in str(wikipediaPageHTML.find_all(role="navigation"))
                 isInImgDesc = subLink in str(wikipediaPageHTML.find_all(class_="wikitable"))
                 isWantedSubLink = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
-                print("wantedSubLink: ",isWantedSubLink)
-                print(f"{hasWantedWords} {hasBannedWords} {isInNavRole} {isInImgDesc}")
                 if(isWantedSubLink):
-                    print("APPENDED")
                     subLink = f"{urlDomain}{subLink}"
                     openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
                     childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
                     try:
                         descImg = f"https:{childWikiPage.find(class_='mw-file-element').get('src')}"
                     except:
-                        descImg = "None"
+                        descImg = None
                     try:
                         descTxt = childWikiPage.find(class_="mw-parser-output").p.text
                     except:
-                        descTxt = "None"
+                        descTxt = None
                     wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
             print("wantedPageInfoContainer: ",wantedPageInfoContainer)
             return wantedPageInfoContainer
