@@ -319,13 +319,15 @@ class ScrapeLinks:
         return manipulatedAllLinks
     
     def save(self, fileName, fileType = ".txt", filePath = "results/"):
-        fileName = re.sub(r"[\s\.,\/]", '', fileName)
+        fileName = re.sub(r"[\s\.,\/]", '', fileName).upper()
         resultKeys = [key for key in list(self.resultDict.keys())]
         resultVals = [val for val in list(self.resultDict.values())]
-        fullFile = f"{fileName}{fileType}"
+        fullFile = f"{filePath}{fileName}{fileType}"
+        if(os.path.exists(fullFile)):
+            os.remove(fullFile)
         file = open(fullFile,"x")
         file = open(fullFile,"a")
-        file.write(f"{fileName.upper()} \n Extraction of sublinks from '{self.startURL}' at {datetime.date} {datetime.time}: \n\n")
+        file.write(f"\n{fileName}\nExtraction of sublinks from '{self.startURL}' at {datetime.date.today()}: \n\n")
         for itemIndex in range(len(self.resultDict)):
             file.write(f"  {resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
         file.close()
@@ -336,8 +338,10 @@ class ScrapeLinks:
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,27)
+z = test.scrape(2,35)
 y = test.save("test")
+
+
 
 
 
