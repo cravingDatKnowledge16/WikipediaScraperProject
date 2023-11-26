@@ -12,6 +12,7 @@ RULES:
 """
 
 
+from ast import main
 import numbers
 from tokenize import String
 from urllib import request
@@ -170,6 +171,7 @@ class ScrapeLinks:
         self.startURL = startURL
         self.iter = 0
         self.resultDict = dict()
+        self.resultItems = []
         self.scrapedLinksIter = 0
         self.isScraped = False
         self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]
@@ -258,7 +260,6 @@ class ScrapeLinks:
             self.resultDict = mainDict
             print("DONE")
             print("MAINDICT: ",mainDict)
-            return mainDict
         else:
             currLay = 0
             while(True):
@@ -284,9 +285,11 @@ class ScrapeLinks:
                             pop = mainDict.pop(keysToPop)
                 #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
                 if(len(nextLayAllItems_writeSublinks) == 0):
-                    self.resultDict = mainDict
-                    return dict(dict = mainDict,stopLayer = currLay)
+                    break
                 currLay+=1
+        self.resultDict = mainDict
+        self.resultItems = [list(item) for item in list(mainDict.items())]
+        return mainDict
                 
     def getLayer(self,targetLayer):
         self.isObjectScraped()
@@ -329,7 +332,7 @@ class ScrapeLinks:
         file = open(fullFile,"a")
         file.write(f"\n{fileName}\nExtraction of sublinks from '{self.startURL}' at {datetime.date.today()}: \n\n")
         for itemIndex in range(len(self.resultDict)):
-            file.write(f"  {resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
+            file.write(f"   {resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
         file.close()
         
 
