@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import array as arr
 import re
 import datetime
+import random
 
 from numpy import iterable
 
@@ -33,6 +34,12 @@ def areObjectsInObject(value,checkList):
 
 print(areObjectsInObject("de.wikipedia.org/wiki/Universum",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
 
-list = [[0,1],[89,5],[20,7]]
+list = [0,4304,500,1,2,402,4,202,402,3,20]
 
-print([enumerate(el) for el in list])
+index = 0
+for i in list:
+    print("index: ",index)
+    list.pop(int(random.randint(0,len(list)-1)))
+    print(len(list))
+    print("list: ",list)
+    index+=1

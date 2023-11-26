@@ -175,7 +175,7 @@ class ScrapeLinks:
         self.scrapedLinksIter = 0
         self.isScraped = False
         self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]
-        self.returnedValue = str()
+        self.returnedValue = None
         
     def __str__(self,returnedValue):
         self.returnedValue = returnedValue
@@ -257,9 +257,6 @@ class ScrapeLinks:
                         toPopList.pop(0)
                         for keyToPop in toPopList:
                             pop = mainDict.pop(keyToPop)  
-            self.resultDict = mainDict
-            print("DONE")
-            print("MAINDICT: ",mainDict)
         else:
             currLay = 0
             while(True):
@@ -289,37 +286,41 @@ class ScrapeLinks:
                 currLay+=1
         self.resultDict = mainDict
         self.resultItems = [list(item) for item in list(mainDict.items())]
+        print("self.resultItems: ",self.resultItems)        
         return mainDict
-                
+  
     def getLayer(self,targetLayer):
         self.isObjectScraped()
         targetLayer = int(targetLayer)
-        allTargetLayElements = []
+        allLayEls = []
         layerIsFound = False
-        for allLinksItem in self.allLinksItems:
-            if(extractNumberAmount(allLinksItem[0]) == targetLayer):
+        for item in self.resultItems:
+            if(extractNumberAmount(item[0]) == targetLayer+1):
                 layerIsFound = True
-                allTargetLayElements.append(allLinksItem)
+                allLayEls.append(item)
             # break out of the loop, when all items of the wanted layer have been copied
-            elif(extractNumberAmount(allLinksItem[0]) != targetLayer and layerIsFound == True):
+            elif(extractNumberAmount(item[0]) != targetLayer and layerIsFound == True):
                 break
-        return allTargetLayElements
+        self.returnedValue = allLayEls
+        return allLayEls
     
     def getParents(self,originLayer):
         self.isObjectScraped()
         originLayer = int(originLayer)
-        allParentElements = []
-        for allLinksItem in self.allLinksItems:
-            if(extractNumberAmount(allLinksItem[0]) == originLayer):
+        allParentEls = []
+        for item in self.resultItems:
+            if(extractNumberAmount(item[0]) == originLayer):
                 break  
-            allParentElements.append(allLinksItem)
-        return allParentElements
+            allParentEls.append(item)
+        self.returnedValue = allParentEls
+        return allParentEls
                     
     def getChildren(self,originLayer):
         self.isObjectScraped()
         originLayer = int(originLayer)
-        manipulatedAllLinks = [item for item in self.allLinksItems if (extractNumberAmount(item[0]) > item[0])]
-        return manipulatedAllLinks
+        allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0]) > originLayer)]
+        self.returnedValue = allChildEls
+        return allChildEls
     
     def save(self, fileName, fileType = ".txt", filePath = "results/"):
         fileName = re.sub(r"[\s\.,\/]", '', fileName).upper()
@@ -341,16 +342,15 @@ class ScrapeLinks:
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,35)
+z = test.scrape(2,27)
+test.getChildren(2)
 y = test.save("test")
 
 
 
 
 
-print(z)
-
-print(y)
+print(test.returnedValue)
     
        
 
