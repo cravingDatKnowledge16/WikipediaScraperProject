@@ -2,6 +2,7 @@ from ast import For
 import imp
 from os import error
 import urllib
+import ssl
 from urllib import request as req
 from urllib import error as err
 from bs4 import BeautifulSoup
@@ -22,7 +23,7 @@ def scrapeLinks(url):
     linkArray = []
 
     try:
-        open_page = req.urlopen(url)
+        open_page = req.urlopen(url,context=ssl._create_unverified_context())
         soup = BeautifulSoup(open_page, "html.parser")
 
         mw_parser_output = soup.find_all(class_="mw-parser-output")
@@ -82,6 +83,6 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
     saveToTXT(globalLinkSet, "ScraperV3Result-no1")
 
 
-scrapeLinksNotOrdered(2, "/wiki/Kadua_cookiana")
+scrapeLinksNotOrdered(3, "/wiki/Kadua_cookiana")
 zeitpunkt2 = time.perf_counter()
 print(f"Dauer: {zeitpunkt2-zeitpunkt1} Fehler: {errorCounter} ({round((zeitpunkt2-zeitpunkt1)/60, ndigits=3)}min)")

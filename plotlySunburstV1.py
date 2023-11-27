@@ -57,6 +57,8 @@ for element in rawdata3:
 
 for element in sitelist:
     valueList.append("1")
+    
+valueList = [1 for el in sitelist]
 
 data = dict(sites = sitelist, parents = parentlist, valueList = valueList)
 
