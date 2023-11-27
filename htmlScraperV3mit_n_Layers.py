@@ -46,7 +46,7 @@ def scrapeLinks(url):
 
 
 def saveToTXT(wantedLinksList, topDoc):
-    newTopDoc = re.sub('[^a-zA-Z0-9 \n\.]', '_', topDoc)
+    newTopDoc = re.sub(r'[^a-zA-Z0-9 \n\.]', '_', topDoc)
     with open(f'results/{newTopDoc}.txt', 'w') as temp_file:
             for item in wantedLinksList:
                 temp_file.write("%s\n"                                                       % item)

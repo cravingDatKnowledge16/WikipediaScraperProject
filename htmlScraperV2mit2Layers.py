@@ -187,7 +187,7 @@ class ScrapeLinks:
         
     def scrape(self, layerDepth = False, maxElPerLay = False):
         startTime = time.perf_counter()
-        print(f"Scraping of '{self.startURL} at {datetime.datetime.today} {} initiated...")
+        print(f"Scraping of '{self.startURL} at {datetime.datetime.now()} initiated...")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         self.isScraped = True
         def areObjectsInObject(self,value,checkList):
@@ -235,6 +235,11 @@ class ScrapeLinks:
         firstEntryDescImg = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
         firstEntryDescTxt = wikipediaPageHTML.find(class_='mw-parser-output').p.text
         mainDict["0"] = dict(URL=self.startURL,descImg=firstEntryDescImg,descTxt=firstEntryDescTxt)
+        
+        mainDictCheckList = [list(item) for item in list(mainDict.items())]
+        itemToAppend = []
+        toDelList = []
+        appendToCheckList = True
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
                 #create the items for the next layer
@@ -244,9 +249,32 @@ class ScrapeLinks:
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
+                    print("currLayKeyIndex: ",currLayKeyIndex)
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-                #eliminate all duplicates to avoid infinite recursion    
+                        print("nextElLayPos: ",nextElLayPos)
+                        for checkItem in mainDictCheckList:
+                            print("checkItem: ",checkItem)
+                            if(nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]["URL"] == checkItem[1]["URL"]):
+                                print("DONT APPEND")
+                                appendToCheckList = False
+                                break
+                        if(appendToCheckList):
+                            print("APPENDED")
+                            #mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
+                            itemToAppend = [f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}",nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]]
+                            print("itemToAppend: ",itemToAppend)
+                            mainDictCheckList.append(itemToAppend)
+                            print("mainDictCheckList: ",mainDictCheckList)
+                            mainDict[itemToAppend[0]] = itemToAppend[1]
+                            print("mainDict: ",mainDict)
+                        else:
+                            appendToCheckList = True
+
+                            
+                        
+                #eliminate all duplicates to avoid infinite recursion   
+                
+                """ 
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 self.iter = 0
                 for mainDictItem in mainDictItems:
@@ -258,6 +286,7 @@ class ScrapeLinks:
                         toPopList.pop(0)
                         for keyToPop in toPopList:
                             pop = mainDict.pop(keyToPop)  
+                """
         else:
             currLay = 0
             while(True):
