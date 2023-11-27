@@ -323,6 +323,7 @@ class ScrapeLinks:
         return allChildEls
     
     def save(self, fileName, fileType = ".txt", filePath = "results/"):
+        self.isObjectScraped()
         fileName = re.sub(r"[\s\.,\/]", '', fileName).upper()
         resultKeys = [key for key in list(self.resultDict.keys())]
         resultVals = [val for val in list(self.resultDict.values())]
