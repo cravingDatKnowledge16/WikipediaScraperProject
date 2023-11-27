@@ -186,6 +186,8 @@ class ScrapeLinks:
             raise ReferenceError("Link has not been scraped yet")
         
     def scrape(self, layerDepth = False, maxElPerLay = False):
+        startTime = time.perf_counter()
+        print(f"Scraping of '{self.startURL} at initiated...")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         self.isScraped = True
         def areObjectsInObject(self,value,checkList):
@@ -244,7 +246,7 @@ class ScrapeLinks:
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-                        self.scrapedLinksIter+=1
+
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 self.iter = 0
@@ -265,7 +267,7 @@ class ScrapeLinks:
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 #scrape the links from the previous layer and write them onto a temporary matrix
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["url"]) for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                #copy all links from current layer onto the main dictionairies 
+                #copy all links from current layer onto the main dictionairy
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
@@ -286,7 +288,6 @@ class ScrapeLinks:
                 currLay+=1
         self.resultDict = mainDict
         self.resultItems = [list(item) for item in list(mainDict.items())]
-        print("self.resultItems: ",self.resultItems)        
         return mainDict
   
     def getLayer(self,targetLayer):
@@ -332,7 +333,7 @@ class ScrapeLinks:
             os.remove(fullFile)
         file = open(fullFile,"x")
         file = open(fullFile,"a")
-        file.write(f"\n{fileName}\nExtraction of sublinks from '{self.startURL}' at {datetime.date.today()}: \n\n")
+        file.write(f"\n{fileName}\nExtraction of sublinks from '{self.startURL}' at {datetime.date.today()} {datetime.time}: \n\n")
         for itemIndex in range(len(self.resultDict)):
             file.write(f"   {resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
         file.close()
