@@ -187,7 +187,7 @@ class ScrapeLinks:
         
     def scrape(self, layerDepth = False, maxElPerLay = False):
         startTime = time.perf_counter()
-        print(f"Scraping of '{self.startURL} at initiated...")
+        print(f"Scraping of '{self.startURL} at {datetime.datetime.today} {} initiated...")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         self.isScraped = True
         def areObjectsInObject(self,value,checkList):
@@ -246,7 +246,6 @@ class ScrapeLinks:
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
                         mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-
                 #eliminate all duplicates to avoid infinite recursion    
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 self.iter = 0
@@ -344,8 +343,7 @@ class ScrapeLinks:
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,27)
-test.getChildren(2)
+z = test.scrape(2,32)
 y = test.save("test")
 
 

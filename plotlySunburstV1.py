@@ -21,7 +21,8 @@ fig.show()
 
 with open("results/TADA.txt", mode="r") as file:
     rawdata = file.read()
-rawdata = rawdata.split()
+rawdata = rawdata.split(sep="\n")
+print(f"hier: {rawdata[4]}")
 
 rawdata2 = []
 for i in range(len(rawdata)):
@@ -30,7 +31,7 @@ for i in range(len(rawdata)):
 rawdata3 = dict()
 
 #for i in range(0, len(rawdata2), 2):
-for i in range(0, 3000, 2):
+for i in range(0, 500, 2):
     rawdata3[f"{rawdata2[i]}"] = f"{re.sub(pattern='https://de.wikipedia.org/wiki/', repl='', string=rawdata2[i+1])}"
 #print(rawdata3)
 
@@ -46,6 +47,7 @@ for element in rawdata3:
     temp1 = False
     for elementOfrawdata3 in rawdata3:
         pos = rawdata3[elementOfrawdata3].rfind(",")
+        print(f"pos: {pos}")
         if elementOfrawdata3[0:pos] == element:
             parentlist.append(rawdata3[elementOfrawdata3])
             temp1 = True
@@ -70,6 +72,6 @@ fig = px.sunburst(
     values='valueList',
 )
 
-print(fig)
+#print(fig)
 
-fig.show()
+#fig.show()
