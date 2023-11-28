@@ -237,6 +237,7 @@ class ScrapeLinks:
         mainDict["0"] = dict(URL=self.startURL,descImg=firstEntryDescImg,descTxt=firstEntryDescTxt)
         
         mainDictCheckList = [list(item) for item in list(mainDict.items())]
+        mainDictValsCheckList = [val for val in list(mainDict.values())]
         itemToAppend = []
         toDelList = []
         appendToCheckList = True
@@ -247,8 +248,12 @@ class ScrapeLinks:
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                for checkItem in nextLayAllItems_writeSublinks
-                nextLayHasDupl = areObjectsInObject()
+                print("nextLayAllItems_writeSublinks: ",nextLayAllItems_writeSublinks)
+                for checkItemIndex in range(len(nextLayAllItems_writeSublinks[0])):
+                    print("checkItem: ",checkItemIndex)
+                    nextLayHasDupl = areObjectsInObject(self,nextLayAllItems_writeSublinks[0][checkItemIndex]["URL"],mainDictValsCheckList)
+                    if(nextLayHasDupl):
+                        nextLayAllItems_writeSublinks[0].pop(nextLayAllItems_writeSublinks[0][checkItemIndex])
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     print("currLayKeyIndex: ",currLayKeyIndex)
