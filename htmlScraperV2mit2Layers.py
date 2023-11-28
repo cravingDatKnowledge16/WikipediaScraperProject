@@ -247,8 +247,8 @@ class ScrapeLinks:
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                #for checkItem in nextLayAllItems_writeSublinks:
-                    #nextLayHasDupl = areObjectsInObject()
+                for checkItem in nextLayAllItems_writeSublinks
+                nextLayHasDupl = areObjectsInObject()
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     print("currLayKeyIndex: ",currLayKeyIndex)
