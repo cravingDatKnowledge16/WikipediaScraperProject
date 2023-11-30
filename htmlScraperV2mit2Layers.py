@@ -13,6 +13,7 @@ RULES:
 
 
 from ast import main
+import imp
 import numbers
 from tokenize import String
 from urllib import request
@@ -27,6 +28,8 @@ import os
 import time
 import string as st
 import json
+import varname as vn
+import imp
 
 
 
@@ -241,6 +244,7 @@ class ScrapeLinks:
         itemToAppend = []
         toDelList = []
         appendToCheckList = True
+        realNextElLayPos = 0
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
                 #create the items for the next layer
@@ -249,14 +253,17 @@ class ScrapeLinks:
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
                 nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
                 print("nextLayAllItems_writeSublinks: ",nextLayAllItems_writeSublinks)
+                """
                 for checkItemIndex in range(len(nextLayAllItems_writeSublinks[0])):
                     print("checkItem: ",checkItemIndex)
                     nextLayHasDupl = areObjectsInObject(self,nextLayAllItems_writeSublinks[0][checkItemIndex]["URL"],mainDictValsCheckList)
                     if(nextLayHasDupl):
                         nextLayAllItems_writeSublinks[0].pop(nextLayAllItems_writeSublinks[0][checkItemIndex])
+                """
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     print("currLayKeyIndex: ",currLayKeyIndex)
+                    realNextElLayPos = 0
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
                         print("nextElLayPos: ",nextElLayPos)
                         for checkItem in mainDictCheckList:
@@ -268,12 +275,13 @@ class ScrapeLinks:
                         if(appendToCheckList):
                             print("APPENDED")
                             #mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-                            itemToAppend = [f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}",nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]]
+                            itemToAppend = [f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]]
                             print("itemToAppend: ",itemToAppend)
                             mainDictCheckList.append(itemToAppend)
                             print("mainDictCheckList: ",mainDictCheckList)
                             mainDict[itemToAppend[0]] = itemToAppend[1]
                             print("mainDict: ",mainDict)
+                            realNextElLayPos+=1
                         else:
                             appendToCheckList = True
 
@@ -374,15 +382,24 @@ class ScrapeLinks:
         file.close()
         
 
-
+def dbPrint(*values):
+     
+    print(vn.argname('values[0]'))
+    return
+    itemsToPrint = [[vn.argname(f"values[{index}]"),values[index]] for index in range(len(values))]
+    for item in itemsToPrint:
+        print(f"{item[0]}: {item[1]}\n")
         
         
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,32)
-y = test.save("test")
+#z = test.scrape(2,32)
+#y = test.save("test")
 
-
+r = 6
+t = 3
+e = 2
+dbPrint(r,t,e)
 
 
 
