@@ -195,7 +195,7 @@ class ScrapeLinks:
         self.isScraped = True
         def areObjectsInObject(self,value,checkList):
             #returns True, if an object 
-            return [word not in value or word != value for word in checkList].count(False) != 0
+            return [word not in value or word == value for word in checkList].count(False) != 0
         def scrapeWikipediaLink(self,URL):
             try:
                 openedParentPage = request.urlopen(URL,context=ssl._create_unverified_context())
@@ -215,8 +215,10 @@ class ScrapeLinks:
                 isInNavRole = subLink in str(wikipediaPageHTML.find_all(role="navigation"))
                 isInImgDesc = subLink in str(wikipediaPageHTML.find_all(class_="wikitable"))
                 isWantedSubLink = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
+                dbPrint(subLink,hasWantedWords,hasBannedWords,isInImgDesc,isInNavRole,isWantedSubLink)
                 if(isWantedSubLink):
                     subLink = f"{urlDomain}{subLink}"
+                    dbPrint(subLink)
                     openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
                     childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
                     try:
@@ -265,9 +267,9 @@ class ScrapeLinks:
                     print("currLayKeyIndex: ",currLayKeyIndex)
                     realNextElLayPos = 0
                     for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        print("nextElLayPos: ",nextElLayPos)
+                        dbPrint(nextElLayPos)
                         for checkItem in mainDictCheckList:
-                            print("checkItem: ",checkItem)
+                            dbPrint(checkItem)
                             if(nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]["URL"] == checkItem[1]["URL"]):
                                 print("DONT APPEND")
                                 appendToCheckList = False
@@ -276,14 +278,16 @@ class ScrapeLinks:
                             print("APPENDED")
                             #mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos] #appends every element of the next layer onto the main dictionary with a specific key as a its position
                             itemToAppend = [f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]]
-                            print("itemToAppend: ",itemToAppend)
+                            dbPrint(itemToAppend)
                             mainDictCheckList.append(itemToAppend)
-                            print("mainDictCheckList: ",mainDictCheckList)
+                            dbPrint(mainDictCheckList)
                             mainDict[itemToAppend[0]] = itemToAppend[1]
-                            print("mainDict: ",mainDict)
+                            dbPrint(mainDict)
                             realNextElLayPos+=1
+                            dbPrint(realNextElLayPos)
                         else:
                             appendToCheckList = True
+                            dbPrint(realNextElLayPos)
 
                             
                         
@@ -383,23 +387,15 @@ class ScrapeLinks:
         
 
 def dbPrint(*values):
-     
-    print(vn.argname('values[0]'))
-    return
-    itemsToPrint = [[vn.argname(f"values[{index}]"),values[index]] for index in range(len(values))]
-    for item in itemsToPrint:
-        print(f"{item[0]}: {item[1]}\n")
-        
-        
+    for itemIndex in range(len(values)):    
+        print(f"{vn.argname(f'values[{itemIndex}]')}: {values[itemIndex]}")
+    
+
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-#z = test.scrape(2,32)
-#y = test.save("test")
+z = test.scrape(2,32)
+y = test.save("test")
 
-r = 6
-t = 3
-e = 2
-dbPrint(r,t,e)
 
 
 

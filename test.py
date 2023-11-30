@@ -28,18 +28,16 @@ def test2(value):
 print([1,4,2,9,0,4,6][:3])
 
 
-def areObjectsInObject(value,checkList):
+def areObjectsInObject(value,checkList): 
     #returns True, if an object 
     return [word not in value for word in checkList].count(False) != 0
 
-print(areObjectsInObject("de.wikipedia.org/wiki/Universum",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
+def areObjectsInObject2(value,checkList):
+    #returns True, if an object 
+    checkList = [word not in value or word == value for word in checkList]
+    print(checkList)
+    return checkList.count(False) != 0
 
-list = [0,4304,500,1,2,402,4,202,402,3,20]
+print(areObjectsInObject("/wiki/Hilfe:Wikimedia_Commons",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
 
-index = 0
-for i in list:
-    print("index: ",index)
-    list.pop(int(random.randint(0,len(list)-1)))
-    print(len(list))
-    print("list: ",list)
-    index+=1
+print(areObjectsInObject2("/wiki/Hilfe:Wikimedia_Commons",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
