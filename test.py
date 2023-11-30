@@ -1,9 +1,11 @@
+from typing import LiteralString
 import urllib.request
 from bs4 import BeautifulSoup
 import array as arr
 import re
 import datetime
 import random
+import string as st
 
 from numpy import iterable
 
@@ -38,6 +40,10 @@ def areObjectsInObject2(value,checkList):
     print(checkList)
     return checkList.count(False) != 0
 
-print(areObjectsInObject("/wiki/Hilfe:Wikimedia_Commons",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
+# print(areObjectsInObject("/wiki/Hilfe:Wikimedia_Commons",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
 
-print(areObjectsInObject2("/wiki/Hilfe:Wikimedia_Commons",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
+# print(areObjectsInObject2("/wiki/Hilfe:Wikimedia_Commons",["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]))
+r = None
+t = ["0," for i in range(4)]
+
+print("".join(t))
