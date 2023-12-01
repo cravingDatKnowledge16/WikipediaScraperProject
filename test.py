@@ -6,6 +6,19 @@ import re
 import datetime
 import random
 import string as st
+import dis
+import os
+
+
+def testFunc():
+    return [1,2,3,4].count(3)
+    
+dis.dis(testFunc)
+
+
+print("0,0,"+"0")
+
+os.abort()
 
 from numpy import iterable
 

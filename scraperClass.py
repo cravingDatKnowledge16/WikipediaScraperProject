@@ -93,7 +93,7 @@ class ScrapeLinks:
     def scrape(self, layerDepth = False, maxElPerLay = False):
         startTime = time.perf_counter()
         processCounter = 1
-        print(f"{''.join('-' for _ in range(30))}\n")
+        print(f"{''.join('-' for _ in range(60))}\n")
         print(f"Scraping of '{self.startURL} at {datetime.datetime.now()} initiated...")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         self.isScraped = True
@@ -217,6 +217,16 @@ class ScrapeLinks:
         self.isObjectScraped()
         targetLayer = int(targetLayer)
         allLayEls = []
+        for item in self.resultItems:
+            dbPrint(item)
+            dbPrint(extractNumberAmount(item[0]),targetLayer,extractNumberAmount(item[0]) == targetLayer)
+            if (extractNumberAmount(item[0]) < targetLayer):
+                allLayEls.append(item)
+        # 1
+        #allLayEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 == targetLayer)]
+        self.returnedValue = allLayEls
+        return allLayEls
+        # 2
         preLayers = "".join("0," for _ in range(targetLayer))
         itemIndex = 0
         while(True):
@@ -231,6 +241,22 @@ class ScrapeLinks:
         self.isObjectScraped()
         originLayer = int(originLayer)
         allParentEls = []
+        #allParentEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 < originLayer)]
+        for item in self.resultItems:
+            dbPrint(item)
+            dbPrint(extractNumberAmount(item[0]),originLayer,extractNumberAmount(item[0]) < originLayer)
+            if (extractNumberAmount(item[0]) < originLayer):
+                allParentEls.append(item)
+        self.returnedValue = allParentEls
+        return allParentEls
+        """ 
+        # splicing the original result dictionary as a list
+        preLayers = "".join("0," for _ in range(originLayer))+"0"
+        
+        stopIndex = self.resultItems.index([preLayers,self.resultDict[preLayers]])
+        allParentEls = self.resultItems[0:stopIndex]
+        return allParentEls
+        
         # linear appending until originlayer has been reached
         
         for item in self.resultItems:
@@ -238,22 +264,20 @@ class ScrapeLinks:
                 break  
             allParentEls.append(item)
         self.returnedValue = allParentEls
-    
-        # splicing the original result dictionary as a list^
-        
-        
-        return allParentEls
-        
-        
+        """
                     
     def getChildren(self,originLayer):
         self.isObjectScraped()
         originLayer = int(originLayer)
-        preLayers = "".join("0," for _ in range(originLayer+1))
         
+        """
+        preLayers = "".join("0," for _ in range(originLayer))+"0"
+        startIndex = self.resultItems.index([preLayers,self.resultDict[preLayers]])
+        allChildEls = self.resultItems[startIndex:]
+        return allChildEls
+        """
         
-        
-        allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0]) > originLayer)]
+        allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 > originLayer)]
         self.returnedValue = allChildEls
         return allChildEls
     
@@ -280,14 +304,21 @@ def dbPrint(*values):
 
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
-z = test.scrape(4,30)
+z = test.scrape(2,30)
 y = test.save(f"test_{datetime.datetime.now()}")
+test.getChildren(1)
 
+dbPrint(test.returnedValue)
 
+os.abort()
 
+test.getLayer(1)
 
+dbPrint(test.returnedValue)
 
-print(test.returnedValue)
+test.getParents(2)
+
+dbPrint(test.returnedValue)
     
        
 
