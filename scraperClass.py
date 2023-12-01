@@ -92,6 +92,7 @@ class ScrapeLinks:
         
     def scrape(self, layerDepth = False, maxElPerLay = False):
         startTime = time.perf_counter()
+        processCounter = 1
         print(f"Scraping of '{self.startURL} at {datetime.datetime.now()} initiated...")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         self.isScraped = True
@@ -117,10 +118,10 @@ class ScrapeLinks:
                 isInNavRole = subLink in str(wikipediaPageHTML.find_all(role="navigation"))
                 isInImgDesc = subLink in str(wikipediaPageHTML.find_all(class_="wikitable"))
                 isWantedSubLink = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
-                dbPrint(subLink,hasWantedWords,hasBannedWords,isInImgDesc,isInNavRole,isWantedSubLink)
+                #dbPrint(subLink,hasWantedWords,hasBannedWords,isInImgDesc,isInNavRole,isWantedSubLink)
                 if(isWantedSubLink):
                     subLink = f"{urlDomain}{subLink}"
-                    dbPrint(subLink)
+                    #dbPrint(subLink)
                     openedChildPage = request.urlopen(subLink,context=ssl._create_unverified_context())
                     childWikiPage = BeautifulSoup(openedChildPage, "html.parser")
                     try:
@@ -148,14 +149,21 @@ class ScrapeLinks:
         appendToCheckList = True
         realNextElLayPos = 0
         # scrape the start-URL, if a max-layer is given
+        print("Scraped element number:")
         if(layerDepth >= 0):
             for currLay in range(layerDepth): 
+                print(f"Layer: {currLay}")
                 #create the items for the next layer
                 mainDictItems = [list(item) for item in list(mainDict.items())]
                 currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
                 currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                dbPrint(nextLayAllItems_writeSublinks)
+                #nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
+                nextLayAllItems_writeSublinks = []
+                for preEl in currLayAllItems_knowItemParents:
+                    nextLayAllItems_writeSublinks.append(scrapeWikipediaLink(self,preEl[1]["URL"]))
+                    print(processCounter)
+                    processCounter+=1
+                #dbPrint(nextLayAllItems_writeSublinks)
                 #copy the next layer items onto the main dictionary
                 for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
                     realNextElLayPos = 0
@@ -262,8 +270,8 @@ def dbPrint(*values):
     
 
         
-test = ScrapeLinks("https://de.wikipedia.org/wiki/Universum")
-z = test.scrape(2,32)
+test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
+z = test.scrape(4,30)
 y = test.save(f"test_{datetime.datetime.now()}")
 
 
