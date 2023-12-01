@@ -93,6 +93,7 @@ class ScrapeLinks:
     def scrape(self, layerDepth = False, maxElPerLay = False):
         startTime = time.perf_counter()
         processCounter = 1
+        print(f"{''.join('-' for _ in range(30))}\n")
         print(f"Scraping of '{self.startURL} at {datetime.datetime.now()} initiated...")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         self.isScraped = True
@@ -104,7 +105,7 @@ class ScrapeLinks:
                 openedParentPage = request.urlopen(URL,context=ssl._create_unverified_context())
             except:
                 print("End of link structure has been reached")
-                os.abort()
+                return None 
             parentWikiPage = BeautifulSoup(openedParentPage, "html.parser")
             parentContainer = parentWikiPage.find(class_="mw-parser-output")
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
