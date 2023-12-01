@@ -231,12 +231,20 @@ class ScrapeLinks:
         self.isObjectScraped()
         originLayer = int(originLayer)
         allParentEls = []
+        # linear appending until originlayer has been reached
+        
         for item in self.resultItems:
             if(extractNumberAmount(item[0]) == originLayer):
                 break  
             allParentEls.append(item)
         self.returnedValue = allParentEls
+    
+        # splicing the original result dictionary as a list^
+        
+        
         return allParentEls
+        
+        
                     
     def getChildren(self,originLayer):
         self.isObjectScraped()
