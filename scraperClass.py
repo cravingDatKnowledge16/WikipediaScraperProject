@@ -15,6 +15,7 @@ RULES:
 from ast import main
 import imp
 import numbers
+from tkinter.tix import Tree
 from tokenize import String
 from urllib import request
 from bs4 import BeautifulSoup
@@ -151,12 +152,14 @@ class ScrapeLinks:
         realNextElLayPos = 0
         # scrape the start-URL, if a max-layer is given
         currLay = 0
-        layerCondition = {
-            "_":lambda a,b : a < b 
+        layerConditions = {
+            "0":lambda a,b : a < b,
+            "1":lambda a,b : True
         }
+        layerCondition = 0
         if(type(layerDepth) != type(1)):
-            layerCondition = True
-        while(layerCondition["_"](currLay,layerDepth)):  
+            layerCondition = 1
+        while(layerConditions[f"{layerCondition}"](currLay,layerDepth)):  
             print(f" Current layer: {currLay} | Working on layer: {currLay+1}")
             #create the items for the next layer
             mainDictItems = [list(item) for item in list(mainDict.items())]
@@ -206,17 +209,23 @@ class ScrapeLinks:
         self.returnedValue = allLayEls
         return allLayEls
     
-    def getParents(self,originLayer,extraLayers = 0):
+    def getParents(self,originLayer,extraLayers = None):
         self.isObjectScraped()
         originLayer = int(originLayer)
+        if(extraLayers == None):
+            extraLayers = originLayer
         allParentEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 < originLayer and extractNumberAmount(item[0])-1 >= originLayer-extraLayers)]   
         self.returnedValue = allParentEls
         return allParentEls
                     
-    def getChildren(self,originLayer,extraLayers = 0):
+    def getChildren(self,originLayer,extraLayers = None):
         self.isObjectScraped()
         originLayer = int(originLayer)
-        allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 > originLayer and extractNumberAmount(item[0])-1 <= originLayer-extraLayers)]
+        allChildEls = []
+        if(extraLayers == None):
+            allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 > originLayer)]
+        elif(type(extraLayers)==type(1)):    
+            allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 > originLayer and extractNumberAmount(item[0])-1 <= originLayer+extraLayers)]
         self.returnedValue = allChildEls
         return allChildEls
     
