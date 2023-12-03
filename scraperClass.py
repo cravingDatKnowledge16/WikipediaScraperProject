@@ -78,7 +78,7 @@ class ScrapeLinks:
         self.iter = 0
         self.resultDict = dict()
         self.resultItems = []
-        self.scrapedLinksIter = 0
+        self.layers = None
         self.isScraped = False
         self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]
         self.returnedValue = None
@@ -92,12 +92,9 @@ class ScrapeLinks:
             raise ReferenceError("Link has not been scraped yet")
         
     def scrape(self, layerDepth = None, maxReadSubLinks = None, maxLinksPerLay = None):
-        startTime = time.perf_counter()
-        allLinksCounter = 1
-        print(f"{''.join('-' for _ in range(100))}\n")
-        print(f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
-        print(f"layerDepth: {layerDepth}, maxReadSubLinks: {maxReadSubLinks}, maxLinksPerLay: {maxLinksPerLay}")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
+        
+        #declaration of local functions
         def areObjectsInObject(self,value,checkList):
             #returns True, if an object 
             return [word not in value or word == value for word in checkList].count(False) != 0
@@ -136,21 +133,16 @@ class ScrapeLinks:
                         descTxt = None
                     wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
             return wantedPageInfoContainer
+        
+        #printing important information
+        print(f"{''.join('-' for _ in range(100))}\n")
+        print(f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
+        print(f"layerDepth: {layerDepth}, maxReadSubLinks: {maxReadSubLinks}, maxLinksPerLay: {maxLinksPerLay}")
+        # initiation of important variables
         self.isScraped = True
-        #open and access the wanted Wikipedia page
-        openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
-        wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
-        #create and setup the dictionary
+        startTime = time.perf_counter()
         mainDict = dict()
-        firstEntryDescImg = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
-        firstEntryDescTxt = wikipediaPageHTML.find(class_='mw-parser-output').p.text
-        mainDict["0"] = dict(URL=self.startURL,descImg=firstEntryDescImg,descTxt=firstEntryDescTxt)
-        # setup for duplicate removal
-        mainDictCheckList = [list(item) for item in list(mainDict.items())]
-        itemToAppend = []
-        appendToCheckList = True
-        realNextElLayPos = 0
-        # scrape the start-URL, if a max-layer is given
+        allLinksCounter = 1
         currLay = 0
         layerConditions = {
             "0":lambda a,b : a < b,
@@ -159,6 +151,20 @@ class ScrapeLinks:
         layerCondition = 0
         if(type(layerDepth) != type(1)):
             layerCondition = 1
+        #open and access the wanted Wikipedia page
+        openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
+        wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
+        #create and setup the dictionary
+        firstEntryDescImg = f"https:{wikipediaPageHTML.find(class_='mw-file-element').get('src')}"
+        firstEntryDescTxt = wikipediaPageHTML.find(class_='mw-parser-output').p.text
+        mainDict["0"] = dict(URL=self.startURL,descImg=firstEntryDescImg,descTxt=firstEntryDescTxt)
+        # setup for duplicate removal
+        mainDictCheckList = [list(item) for item in list(mainDict.items())]
+        itemToAppend = []
+        appendToCheckList = True
+        realNextElLayPos = 0
+        
+        # initiate scraping
         while(layerConditions[f"{layerCondition}"](currLay,layerDepth)):  
             print(f" Current layer: {currLay} | Working on layer: {currLay+1}")
             #create the items for the next layer
@@ -199,6 +205,7 @@ class ScrapeLinks:
                 break
             currLay+=1
         self.resultDict = mainDict
+        
         self.resultItems = [list(item) for item in list(mainDict.items())]
         return mainDict
   
