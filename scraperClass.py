@@ -90,13 +90,13 @@ class ScrapeLinks:
         if(not self.isScraped):
             raise ReferenceError("Link has not been scraped yet")
         
-    def scrape(self, layerDepth = False, maxElPerLay = False):
+    def scrape(self, layerDepth = None, maxReadSubLinks = None, maxLinksPerLay = None):
         startTime = time.perf_counter()
-        processCounter = 1
-        print(f"{''.join('-' for _ in range(60))}\n")
-        print(f"Scraping of '{self.startURL} at {datetime.datetime.now()} initiated...")
+        allLinksCounter = 1
+        print(f"{''.join('-' for _ in range(100))}\n")
+        print(f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
+        print(f"layerDepth: {layerDepth}, maxReadSubLinks: {maxReadSubLinks}, maxLinksPerLay: {maxLinksPerLay}")
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
-        self.isScraped = True
         def areObjectsInObject(self,value,checkList):
             #returns True, if an object 
             return [word not in value or word == value for word in checkList].count(False) != 0
@@ -111,8 +111,8 @@ class ScrapeLinks:
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
             parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
             wantedPageInfoContainer = []
-            if(maxElPerLay is not False and maxElPerLay > 0):
-               parentContainerAllLinks = parentContainerAllLinks[:maxElPerLay]
+            if(maxReadSubLinks is not None and maxReadSubLinks > 0):
+               parentContainerAllLinks = parentContainerAllLinks[:maxReadSubLinks]
             for subLink in parentContainerAllLinks:
                 hasWantedWords = "/wiki/" in subLink
                 hasBannedWords = areObjectsInObject(self,subLink,self.bannedWordsInLink)
@@ -135,7 +135,7 @@ class ScrapeLinks:
                         descTxt = None
                     wantedPageInfoContainer.append(dict(URL=subLink,descImg=descImg,descTxt=descTxt))
             return wantedPageInfoContainer
-        
+        self.isScraped = True
         #open and access the wanted Wikipedia page
         openedPage = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaPageHTML = BeautifulSoup(openedPage, "html.parser")
@@ -150,65 +150,51 @@ class ScrapeLinks:
         appendToCheckList = True
         realNextElLayPos = 0
         # scrape the start-URL, if a max-layer is given
-        print("Scraped element number:")
-        if(layerDepth >= 0):
-            for currLay in range(layerDepth): 
-                print(f"Layer: {currLay}")
-                #create the items for the next layer
-                mainDictItems = [list(item) for item in list(mainDict.items())]
-                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
-                currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                #nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                nextLayAllItems_writeSublinks = []
-                for preEl in currLayAllItems_knowItemParents:
-                    nextLayAllItems_writeSublinks.append(scrapeWikipediaLink(self,preEl[1]["URL"]))
-                    print(processCounter)
-                    processCounter+=1
-                #dbPrint(nextLayAllItems_writeSublinks)
-                #copy the next layer items onto the main dictionary
-                for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                    realNextElLayPos = 0
-                    for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        # prevent creation of duplicates and thereby infinite recursion
-                        for checkItem in mainDictCheckList:
-                            if(nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]["URL"] == checkItem[1]["URL"]):
-                                appendToCheckList = False
-                                break
-                        if(appendToCheckList):
-                            itemToAppend = [f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-                            mainDictCheckList.append(itemToAppend)
-                            mainDict[itemToAppend[0]] = itemToAppend[1]
-                            realNextElLayPos+=1
-                        else:
-                            appendToCheckList = True
-        # scrape the start-URL, if no max-layer is given
-        else:
-            currLay = 0
-            while(True):
-                mainDictItems = [list(item) for item in list(mainDict.items())]
-                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
-                currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                #scrape the links from the previous layer and write them onto a temporary matrix
-                nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["url"]) for preEl in enumerate(currLayAllKeys_knowParentKeys)] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
-                #copy all links from current layer onto the main dictionairy
-                for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                    for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
-                #eliminate all duplicates to avoid infinite recursion    
-                mainDictItems = [list(item) for item in list(mainDict.items())]
-                for mainDictItem in mainDictItems:
-                    mainDictItem = list(mainDictItem)
-                    mainDictValues = list(mainDict.values())
-                    mainDictItemCount = mainDictValues.count(mainDictItem[1])
-                    if(mainDictItemCount >= 2): #if a value occurs more than 2 times
-                        toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
-                        toPopList.pop(0)
-                        for keysToPop in toPopList:
-                            pop = mainDict.pop(keysToPop)
-                #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
-                if(len(nextLayAllItems_writeSublinks) == 0):
-                    break
-                currLay+=1
+        currLay = 0
+        layerCondition = {
+            "_":lambda a,b : a < b 
+        }
+        if(type(layerDepth) != type(1)):
+            layerCondition = True
+        while(layerCondition["_"](currLay,layerDepth)):  
+            print(f" Current layer: {currLay} | Working on layer: {currLay+1}")
+            #create the items for the next layer
+            mainDictItems = [list(item) for item in list(mainDict.items())]
+            currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)] #extracts every item in the main dictionary of the current layer
+            currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
+            #nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,preEl[1]["URL"]) for preEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
+            nextLayAllItems_writeSublinks = []
+            layerItemCounter = 1
+            for preEl in currLayAllItems_knowItemParents:
+                nextLayAllItems_writeSublinks.append(scrapeWikipediaLink(self,preEl[1]["URL"]))
+                print(f"  All processed links: {allLinksCounter} | Current scraped link: {layerItemCounter}/{len(currLayAllItems_knowItemParents)}")
+                allLinksCounter+=1
+                layerItemCounter+=1
+            #copy the next layer items onto the main dictionary
+            currLayDuplCounter = 0
+            for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
+                realNextElLayPos = 0
+                if(maxLinksPerLay is not None and maxLinksPerLay > 0):
+                    nextLayAllItems_writeSublinks = nextLayAllItems_writeSublinks[:maxLinksPerLay]
+                for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
+                    # prevent creation of duplicates and thereby infinite recursion
+                    for checkItem in mainDictCheckList:
+                        if(nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]["URL"] == checkItem[1]["URL"]):
+                            appendToCheckList = False
+                            break
+                    if(appendToCheckList):
+                        itemToAppend = [f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]] #appends every element of the next layer onto the main dictionary with a specific key as a its position
+                        mainDictCheckList.append(itemToAppend)
+                        mainDict[itemToAppend[0]] = itemToAppend[1]
+                        realNextElLayPos+=1
+                    else:
+                        appendToCheckList = True
+                        currLayDuplCounter+=1
+            print(f"  Amount of duplicates in layer: {currLayDuplCounter}")
+            #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
+            if(len(nextLayAllItems_writeSublinks) == 0):
+                break
+            currLay+=1
         self.resultDict = mainDict
         self.resultItems = [list(item) for item in list(mainDict.items())]
         return mainDict
@@ -216,84 +202,41 @@ class ScrapeLinks:
     def getLayer(self,targetLayer):
         self.isObjectScraped()
         targetLayer = int(targetLayer)
-        allLayEls = []
-        for item in self.resultItems:
-            dbPrint(item)
-            dbPrint(extractNumberAmount(item[0]),targetLayer,extractNumberAmount(item[0]) == targetLayer)
-            if (extractNumberAmount(item[0]) < targetLayer):
-                allLayEls.append(item)
-        # 1
-        #allLayEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 == targetLayer)]
-        self.returnedValue = allLayEls
-        return allLayEls
-        # 2
-        preLayers = "".join("0," for _ in range(targetLayer))
-        itemIndex = 0
-        while(True):
-            try:
-                allLayEls.append([f"{preLayers}{itemIndex}",self.resultDict[f"{preLayers}{itemIndex}"]])
-            except:
-                break
+        allLayEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 == targetLayer)]
         self.returnedValue = allLayEls
         return allLayEls
     
-    def getParents(self,originLayer):
+    def getParents(self,originLayer,extraLayers = 0):
         self.isObjectScraped()
         originLayer = int(originLayer)
-        allParentEls = []
-        #allParentEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 < originLayer)]
-        for item in self.resultItems:
-            dbPrint(item)
-            dbPrint(extractNumberAmount(item[0]),originLayer,extractNumberAmount(item[0]) < originLayer)
-            if (extractNumberAmount(item[0]) < originLayer):
-                allParentEls.append(item)
+        allParentEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 < originLayer and extractNumberAmount(item[0])-1 >= originLayer-extraLayers)]   
         self.returnedValue = allParentEls
         return allParentEls
-        """ 
-        # splicing the original result dictionary as a list
-        preLayers = "".join("0," for _ in range(originLayer))+"0"
-        
-        stopIndex = self.resultItems.index([preLayers,self.resultDict[preLayers]])
-        allParentEls = self.resultItems[0:stopIndex]
-        return allParentEls
-        
-        # linear appending until originlayer has been reached
-        
-        for item in self.resultItems:
-            if(extractNumberAmount(item[0]) == originLayer):
-                break  
-            allParentEls.append(item)
-        self.returnedValue = allParentEls
-        """
                     
-    def getChildren(self,originLayer):
+    def getChildren(self,originLayer,extraLayers = 0):
         self.isObjectScraped()
         originLayer = int(originLayer)
-        
-        """
-        preLayers = "".join("0," for _ in range(originLayer))+"0"
-        startIndex = self.resultItems.index([preLayers,self.resultDict[preLayers]])
-        allChildEls = self.resultItems[startIndex:]
-        return allChildEls
-        """
-        
-        allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 > originLayer)]
+        allChildEls = [item for item in self.resultItems if (extractNumberAmount(item[0])-1 > originLayer and extractNumberAmount(item[0])-1 <= originLayer-extraLayers)]
         self.returnedValue = allChildEls
         return allChildEls
     
-    def save(self, fileName, fileType = ".txt", filePath = "results/"):
+    def save(self, fileName, fileType = "txt", filePath = "results/", extraInfo = False):
         self.isObjectScraped()
         fileName = re.sub(r"[\s\.,\/]", '', fileName).upper()
-        resultKeys = [key for key in list(self.resultDict.keys())]
-        resultVals = [val for val in list(self.resultDict.values())]
-        fullFile = f"{filePath}{fileName}{fileType}"
-        if(os.path.exists(fullFile)):
-            os.remove(fullFile)
-        file = open(fullFile,"x")
-        file = open(fullFile,"a")
-        file.write(f"\n{fileName}\nExtraction of sublinks from '{self.startURL}' at {datetime.date.today()} {datetime.time}: \n\n")
-        for itemIndex in range(len(self.resultDict)):
-            file.write(f"   {resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
+        resultKeys = list(self.resultDict.keys()).copy()
+        resultVals = list(self.resultDict.values()).copy()
+        fullFilePath = f"{filePath}{fileName}.{fileType}"
+        if(os.path.exists(fullFilePath)):
+            os.remove(fullFilePath)
+        file = open(fullFilePath,"x")
+        file = open(fullFilePath,"a")
+        if(fileType == "txt"):
+            if(extraInfo):
+                file.write(f"\n{fileName}\nExtraction of sublinks from '{self.startURL}' at {datetime.date.today()} {datetime.time}: \n\n")
+            for itemIndex in range(len(self.resultDict)):
+                file.write(f"{resultKeys[itemIndex]} : {resultVals[itemIndex]}\n")
+        elif(fileType == "json"):
+            file.write(json.dumps(self.resultDict))
         file.close()
         
 
@@ -310,8 +253,6 @@ test.getChildren(1)
 
 dbPrint(test.returnedValue)
 
-os.abort()
-
 test.getLayer(1)
 
 dbPrint(test.returnedValue)
@@ -320,49 +261,6 @@ test.getParents(2)
 
 dbPrint(test.returnedValue)
     
+
        
-
-
-
-
-"""
-Storage:
-
-def storeFuncRecurInDict(startElement,forEachElFunc,layerDepth = -1):
-    #extracts the elements of a dictionary recursively
-        currLayAllKeys_knowParentKeys = list()
-        nextLayAllItems_writeSublinks = list()
-        mainDict = dict()
-        mainDict["0"] = startElement
-        if(layerDepth >= 0):
-            for currLay in range(layerDepth): #for every layer do:
-                mainDictItems = [list(item) for item in list(mainDict.items())]
-                #print(f"mainDictItems {mainDictItems}")
-                currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
-                #print(f"currLayAllItems {currLayAllItems_knowItemParents}")
-                currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-                #print(f"currLayAllKeys {currLayAllKeys_knowParentKeys}")
-                #scrape the links from the previous layer and write them onto a temporary matrix
-                nextLayAllItems_writeSublinks = [forEachElFunc(mainDict[preEl]) for preEl in currLayAllKeys_knowParentKeys]
-                #print(f"nextLayAllItems {nextLayAllItems_writeSublinks}")
-                #copy all links from current layer onto the main dictionairies 
-                for currLayKeyIndex in range(len(currLayAllKeys_knowParentKeys)):
-                    #print(f"currLayKeyIndex {currLayKeyIndex}")
-                    for nextElLayPos in range(len(nextLayAllItems_writeSublinks[currLayKeyIndex])):
-                        #print(f"nextElLayPos {nextElLayPos}")
-                        mainDict[f"{currLayAllKeys_knowParentKeys[currLayKeyIndex]},{nextElLayPos}"] = nextLayAllItems_writeSublinks[currLayKeyIndex][nextElLayPos]
-                        #print(f"mainDict {mainDict}")
-                #eliminate all duplicates to avoid infinite recursion    
-                mainDictItems = [list(item) for item in list(mainDict.items())]
-                #print("CHECK FOR DUPL")
-                for mainDictItem in mainDictItems:
-                    toPopList = [item[0] for item in mainDictItems if item[1] == mainDictItem[1]]
-                    for keysToPop in toPopList[1:]:
-                        pop = mainDict.pop(keysToPop)
-                #print("DUPL CHECK COMPLETE")
-
-"""
-
-
-
 

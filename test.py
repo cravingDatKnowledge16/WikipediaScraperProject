@@ -10,12 +10,20 @@ import dis
 import os
 
 
+
 def testFunc():
     return [1,2,3,4].count(3)
     
 dis.dis(testFunc)
 
+for i in True:
+    
 
+u = True
+print([1,2,3,4,5][:1])
+
+if(u):
+    print("Done")
 print("0,0,"+"0")
 
 os.abort()
