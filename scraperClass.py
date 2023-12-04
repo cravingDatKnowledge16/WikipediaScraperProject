@@ -14,6 +14,7 @@ RULES:
 
 from ast import main
 import imp
+import imp
 import numbers
 from tkinter.tix import Tree
 from tokenize import String
@@ -31,6 +32,7 @@ import string as st
 import json
 import varname as vn
 import imp
+import plotly.express as px
 
 
 
@@ -205,7 +207,7 @@ class ScrapeLinks:
                 break
             currLay+=1
         self.resultDict = mainDict
-        
+        self.layers = currLay
         self.resultItems = [list(item) for item in list(mainDict.items())]
         return mainDict
   
@@ -255,6 +257,26 @@ class ScrapeLinks:
             file.write(json.dumps(self.resultDict))
         file.close()
         
+    def plotlify(self):
+        self.isObjectScraped()
+        pxElements = [f"{item[1]}" for item in self.resultItems]
+        pxParents = [""]
+        pxParents[1:] = [f"{self.resultDict[(lambda i : re.sub(r'(,\d+|\d+)$','',i))(item[0])]}" for item in self.resultItems[1:]]
+        pxValues = [1 for _ in range(len(self.resultItems))]
+        dbPrint(pxElements,pxParents)
+        pxData= dict(
+            el = pxElements,
+            par = pxParents,
+            val = pxValues        
+        )
+        fig = px.sunburst(
+            pxData,
+            names="el",
+            parents="par",
+            values="val"
+            
+        )
+        fig.show()
 
 def dbPrint(*values):
     for itemIndex in range(len(values)):    
@@ -263,9 +285,11 @@ def dbPrint(*values):
 
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
-z = test.scrape(2,30)
+z = test.scrape(1,30)
 y = test.save(f"test_{datetime.datetime.now()}")
 test.getChildren(1)
+test.plotlify()
+os.abort()
 
 dbPrint(test.returnedValue)
 
@@ -276,6 +300,8 @@ dbPrint(test.returnedValue)
 test.getParents(2)
 
 dbPrint(test.returnedValue)
+
+
     
 
        
