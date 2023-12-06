@@ -108,6 +108,10 @@ class ScrapeLinks:
                 print("End of link structure has been reached")
                 return None 
             print(f"   Extract data...")
+            
+            return dict(URL = URL, )
+            
+            
             parentWikiPage = BeautifulSoup(openedParentPage, "html.parser")
             parentContainer = parentWikiPage.find(class_="mw-parser-output")
             urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
