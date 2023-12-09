@@ -236,7 +236,7 @@ class ScrapeURL:
             # prevent creation of duplicates and thereby infinite recursion
             if(appendToChecklist):
                 print(f"   Appending...")
-                itemToAppend = [f"{currLayAllKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems[currLayKeyIndex][elInd]] #appends every element of the next layer onto the main dictionary with a specific key as a its position
+                itemToAppend = [f"{currLayAllKeys[elInd]},{realNextElLayPos}",nextLayAllItems[currLayKeyIndex][elInd]] #appends every element of the next layer onto the main dictionary with a specific key as a its position
                 mainDictCheckList.append(itemToAppend)
                 mainDict[itemToAppend[0]] = itemToAppend[1]
                 realNextElLayPos+=1
