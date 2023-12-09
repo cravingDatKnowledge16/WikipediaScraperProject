@@ -99,12 +99,16 @@ class ScrapeURL:
             "1":lambda a,b : True
         }
         layerCondition = 1 if layerDepth >= 0 else 0
+        currLayKeyIndex = 0
+        currLayAllItems = []
+        currLayAllKeys = []
         mainDictCheckList = [list(item) for item in list(mainDict.items())]
         itemToAppend = []
         appendToChecklist = True
         currLayDuplCounter = 0
-        realNextElLayPos = 0
+        layerItemCounter = 1
         allArticlesCounter = 1
+        realNextElLayPos = 0
         currLay = 0
         
         #declaration of local functions
@@ -137,7 +141,9 @@ class ScrapeURL:
             except:
                 articleTxt = None
             return dict(URL=URL,articleTitle=articleTitle,articleImg=articleImg,articleTxt=articleTxt)
+        
         def getSublinks(self,URL):
+            nonlocal maxReadLinks
             print(f"   Open page...")
             try:
                 openedPage = request.urlopen(URL,context=ssl._create_unverified_context())
@@ -150,7 +156,7 @@ class ScrapeURL:
             maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(parentContainer)
             parentContainerAllURLs = [iterURL["href"] for iterURL in parentContainer.find_all("a",href=True)[:maxReadLinks]]
             print(f"   Scrape URLs...")
-            wantedPageInfoContainer = [getPageInfo(self,iterURL,wikiPage) for iterURL in parentContainerAllURLs if isWantedURL(self,iterURL)]
+            wantedPageInfoContainer = [getPageInfo(self,iterURL) for iterURL in parentContainerAllURLs if isWantedURL(self,iterURL,wikiPage)]
             return wantedPageInfoContainer
         
         def printStartTerminalInfo(self):
@@ -168,11 +174,12 @@ class ScrapeURL:
             firstEntryDescTxt = wikipediaPageHTML.find(class_='mw-parser-output').p.text
             mainDict["0"] = dict(URL=self.startURL,articleTitle=firstEntryPageTitle,articleImg=firstEntryDescImg,articleTxt=firstEntryDescTxt)
         
-        printStartTerminalInfo()
-        predefineDict()
+        printStartTerminalInfo(self)
+        predefineDict(self)
         
-        mainDictItems,currLayAllItems,nextLayAllItems = []
+        mainDictItems = currLayAllItems = nextLayAllItems = []
         def initiateScraping(self):
+            nonlocal currLay
             while(layerConditions[f"{layerCondition}"](currLay,layerDepth)):  
                 print(f" Current layer: {currLay} | Working on layer: {currLay+1}")
                 getCurrLayEls(self)
@@ -189,6 +196,7 @@ class ScrapeURL:
             nonlocal mainDictItems,currLayAllItems
             mainDictItems = [list(item) for item in list(mainDict.items())]
             currLayAllItems = [item for item in mainDictItems if (self._getNumberAmount(item[0]) == currLay+1)]
+            currLayAllKeys = [item[0] for item in currLayAllItems]
         def createNextLayEls():
             print(f"  Creating next layer...")
             nonlocal allArticlesCounter,layerItemCounter,nextLayAllItems
@@ -201,7 +209,7 @@ class ScrapeURL:
                 layerItemCounter+=1
         def initiateAppendingNextLayEls():
             print(f"  Initiating appending of next layer...")
-            nonlocal currLayDuplCounter,realNextElLayPos,maxURLPerLay,itemToAppend,mainDictCheckList,mainDict
+            nonlocal currLayDuplCounter,realNextElLayPos,maxURLPerLay,itemToAppend,mainDictCheckList,mainDict,currLayKeyIndex
             #copy the next layer items onto the main dictionary
             maxURLPerLay = maxURLPerLay if maxURLPerLay >= 0 else len(nextLayAllItems)
             currLayDuplCounter = 0
@@ -224,7 +232,7 @@ class ScrapeURL:
                 print(f"   Not a duplicate")
                 
         def appendToResultDict(self,elInd):
-            nonlocal currLayDuplCounter,realNextElLayPos,maxURLPerLay,itemToAppend,mainDictCheckList,mainDict
+            nonlocal currLayDuplCounter,realNextElLayPos,maxURLPerLay,itemToAppend,mainDictCheckList,mainDict,appendToChecklist
             # prevent creation of duplicates and thereby infinite recursion
             if(appendToChecklist):
                 print(f"   Appending...")

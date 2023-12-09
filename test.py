@@ -10,6 +10,14 @@ import dis
 import os
 
 
+t = z = o = 2
+print(t)
+
+z=0
+print(t)
+
+os.abort()
+
 def d():
     t = 3
     def a():
