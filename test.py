@@ -10,11 +10,20 @@ import dis
 import os
 
 
-t = z = o = 2
-print(t)
+def _isLayPos(value):
+    valStr = st.Formatter()
+    print(valStr)
+    val2 = valStr.isalnum()
+    print(val2)
+    return value.strip(",").isalnum()
 
-z=0
-print(t)
+print(_isLayPos("0,0,0"))
+u = {
+    "m":0,
+    "r":1,
+    "t":5
+} 
+print(3 in u.values())
 
 os.abort()
 
@@ -25,7 +34,7 @@ def d():
         t = 5
         def r():
             nonlocal t
-            # t = 9
+   # t = 9
             print(t)
         r()
         print(t)

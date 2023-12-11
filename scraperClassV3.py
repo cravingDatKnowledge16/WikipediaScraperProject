@@ -111,7 +111,7 @@ class ScrapeURL:
         nextLayAllItems = []
         mainDictCheckList = [list(item) for item in list(mainDict.items())]
         itemToAppend = []
-        appendToChecklist = True
+        notInMainDict = True
         currLayDuplCounter = 0
         layerItemCounter = 1
         allArticlesCounter = 1
@@ -212,7 +212,8 @@ class ScrapeURL:
             nextLayAllItems = []
             layerItemCounter = 1
             for currEl in currLayAllItems:
-                nextLayAllItems.append(getSublinks(self,currEl[1]["URL"]))
+                for nextEl in getSublinks(self,currEl[1]["URL"]):
+                    nextLayAllItems.append(nextEl)
                 print(f"   All processed URL: {allArticlesCounter} | Current scraped link: {layerItemCounter}/{len(currLayAllItems)}")
                 allArticlesCounter+=1
                 layerItemCounter+=1
@@ -222,29 +223,28 @@ class ScrapeURL:
             #copy the next layer items onto the main dictionary
             maxURLPerLay = maxURLPerLay if maxURLPerLay >= 0 else len(nextLayAllItems)
             currLayDuplCounter = 0
-            for currLayKeyIndex in range(len(currLayAllItems)):
-                realNextElLayPos = 0
-                dbPrint(nextLayAllItems)
-                for nextElLayPos in range(len(nextLayAllItems[:maxURLPerLay][currLayKeyIndex])):
-                    isInResultDict()
-                    appendToResultDict()  
+            realNextElLayPos = 0
+            dbPrint(nextLayAllItems)
+            for nextElLayPos in range(len(nextLayAllItems[:maxURLPerLay])):
+                isInResultDict()
+                appendToResultDict()  
             print(f"  Amount of duplicates in layer: {currLayDuplCounter}")
                 
         def isInResultDict():
             print(f"   Checking if duplicate...")
-            nonlocal appendToChecklist, mainDictCheckList, nextLayAllItems, currLayKeyIndex, nextElLayPos
+            nonlocal notInMainDict, mainDictCheckList, nextLayAllItems, currLayKeyIndex, nextElLayPos
             for checkItem in mainDictCheckList:
                 if(nextLayAllItems[currLayKeyIndex][nextElLayPos]["URL"] == checkItem[1]["URL"]):
-                    appendToChecklist = False
+                    notInMainDict = False
                     print(f"   Is duplicate, no appending")
                     break
-            if(appendToChecklist):
+            if(notInMainDict):
                 print(f"   Not a duplicate")
                 
         def appendToResultDict():
-            nonlocal currLayDuplCounter,realNextElLayPos,itemToAppend,mainDictCheckList,mainDict,appendToChecklist,currLayKeyIndex,nextElLayPos,currLayAllKeys
+            nonlocal currLayDuplCounter,realNextElLayPos,itemToAppend,mainDictCheckList,mainDict,notInMainDict,currLayKeyIndex,nextElLayPos,currLayAllKeys
             # prevent creation of duplicates and thereby infinite recursion
-            if(appendToChecklist):
+            if(notInMainDict):
                 print(f"   Appending...")
                 dbPrint(currLayAllKeys,currLayKeyIndex)
                 itemToAppend = [f"{currLayAllKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems[currLayKeyIndex][nextElLayPos]] #appends every element of the next layer onto the main dictionary with a specific key as a its position
@@ -253,7 +253,7 @@ class ScrapeURL:
                 realNextElLayPos+=1
             else:
                 print(f"   Not appending...")
-                appendToChecklist = True
+                notInMainDict = True
                 currLayDuplCounter+=1
         
         initiateScraping(self)

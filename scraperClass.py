@@ -116,8 +116,10 @@ class ScrapeLinks:
             if(maxReadSubLinks is not None and maxReadSubLinks > 0):
                parentContainerAllLinks = parentContainerAllLinks[:maxReadSubLinks]
             print(f"   Scrape sublinks...")
+            
             for subLink in parentContainerAllLinks:
                 hasWantedWords = "/wiki/" in subLink
+                hasBannedWords = subLink in self.bannedWordsInLink
                 hasBannedWords = areObjectsInObject(self,subLink,self.bannedWordsInLink)
                 isInNavRole = subLink in str(wikipediaPageHTML.find_all(role="navigation"))
                 isInImgDesc = subLink in str(wikipediaPageHTML.find_all(class_="wikitable"))
@@ -182,7 +184,6 @@ class ScrapeLinks:
             mainDictItems = [list(item) for item in list(mainDict.items())]
             currLayAllItems_knowItemParents = [item for item in mainDictItems if (extractNumberAmount(item[0]) == currLay+1)]
             currLayAllKeys_knowParentKeys = [item[0] for item in currLayAllItems_knowItemParents]
-            #nextLayAllItems_writeSublinks = [scrapeWikipediaLink(self,currEl[1]["URL"]) for currEl in currLayAllItems_knowItemParents] #applies the given function to every element of the current layer and stores the allLinks as a 2d-array/matrix
             nextLayAllItems_writeSublinks = []
             layerItemCounter = 1
             for currEl in currLayAllItems_knowItemParents:
