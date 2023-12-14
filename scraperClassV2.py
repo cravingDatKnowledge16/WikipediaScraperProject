@@ -89,7 +89,7 @@ class ScrapeURL:
             return len(re.findall(r"\d+",str(text)))
         
     def _isLayPos(self,value):
-        return str.strip(",").isalnum()
+        return str.strip(",").isalnum() #WIP
     def scrape(self, layerDepth = None, maxReadLinks = None, maxURLPerLay = None):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         
@@ -106,7 +106,6 @@ class ScrapeURL:
         currLayKeyIndex = 0
         currLayAllItems = []
         currLayAllKeys = []
-        nextElLayIndex = 0
         nextElLayPos = 0
         nextLayAllItems = []
         mainDictCheckList = [list(item) for item in list(mainDict.items())]
@@ -205,14 +204,16 @@ class ScrapeURL:
             nonlocal mainDictItems,currLayAllItems,currLayAllKeys
             mainDictItems = [list(item) for item in list(mainDict.items())]
             currLayAllItems = [item for item in mainDictItems if (self._getNumberAmount(item[0]) == currLay+1)]
+            
             currLayAllKeys = [item[0] for item in currLayAllItems]
         def createNextLayEls():
             print(f"  Creating next layer...")
             nonlocal allArticlesCounter,layerItemCounter,nextLayAllItems
             nextLayAllItems = []
             layerItemCounter = 1
-            for currEl in currLayAllItems:
-                nextLayAllItems.append(getSublinks(self,currEl[1]["URL"]))
+            for currLayItem in currLayAllItems:
+                for nextLayItem in getSublinks(self,currLayItem[1]["URL"]):
+                    nextLayAllItems.append(nextLayItem)
                 print(f"   All processed URL: {allArticlesCounter} | Current scraped link: {layerItemCounter}/{len(currLayAllItems)}")
                 allArticlesCounter+=1
                 layerItemCounter+=1
@@ -224,7 +225,7 @@ class ScrapeURL:
             currLayDuplCounter = 0
             for currLayKeyIndex in range(len(currLayAllItems)):
                 realNextElLayPos = 0
-                dbPrint(nextLayAllItems)
+                dbPrint(len(nextLayAllItems))
                 for nextElLayPos in range(len(nextLayAllItems[:maxURLPerLay][currLayKeyIndex])):
                     isInResultDict()
                     appendToResultDict()  

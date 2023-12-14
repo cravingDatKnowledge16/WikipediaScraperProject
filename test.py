@@ -8,22 +8,15 @@ import random
 import string as st
 import dis
 import os
+func = 5
+
+def func(n):
+    return n
 
 
-def _isLayPos(value):
-    valStr = st.Formatter()
-    print(valStr)
-    val2 = valStr.isalnum()
-    print(val2)
-    return value.strip(",").isalnum()
+p = func
 
-print(_isLayPos("0,0,0"))
-u = {
-    "m":0,
-    "r":1,
-    "t":5
-} 
-print(3 in u.values())
+print(p)
 
 os.abort()
 
