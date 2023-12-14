@@ -184,6 +184,16 @@ class ScrapeLinks:
                 
                 print(f"   Open Article...")
                 currURL = f"{self.urlDomain}{currURL}" if "https" not in currURL else currURL
+                try:
+                    openedArticle = request.urlopen(URL,context=ssl._create_unverified_context())
+                except:
+                    print("End of link structure has been reached")
+                    return None 
+                print(f"   Extract data...")
+                wikiArticle = BeautifulSoup(openedArticle, "html.parser")
+                parentContainer = wikiArticle.find(class_="mw-parser-output")
+                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(parentContainer)
+                parentContainerAllURLs = [iterURL["href"] for iterURL in parentContainer.find_all("a",href=True)[:maxReadLinks]]
                 hasWantedWords = "/wiki/" in currURL
                 if(hasWantedWords):
                     hasBannedWords = [word not in currURL or word == currURL for word in self.bannedWordsInLink].count(False) != 0
@@ -192,14 +202,6 @@ class ScrapeLinks:
                         if(not isInNavRole):
                             isInImgDesc = currURL in str(wikiArticle.find_all(class_="wikitable"))
                             if(not isInImgDesc):
-                                try:
-                                    openedArticle = request.urlopen(URL,context=ssl._create_unverified_context())
-                                except:
-                                    print("End of link structure has been reached")
-                                    return None 
-                                print(f"   Extract data...")
-                                wikiArticle = BeautifulSoup(openedArticle, "html.parser")
-                                parentContainer = wikiArticle.find(class_="mw-parser-output")
                                 try:
                                     articleTitle = wikiArticle.find(class_="mw-Article-title-main").text
                                 except:
@@ -214,8 +216,6 @@ class ScrapeLinks:
                                     articleTxt = wikiArticle.find(class_="mw-parser-output").p.text
                                 except:
                                     articleTxt = None
-                                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(parentContainer)
-                                parentContainerAllURLs = [iterURL["href"] for iterURL in parentContainer.find_all("a",href=True)[:maxReadLinks]]
                                 print(f"   Scrape URLs...")
                     
 
