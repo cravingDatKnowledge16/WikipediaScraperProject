@@ -37,9 +37,8 @@ import plotly.express as px
 
 
 
-def _getNumberAmount(text):
-    allNumbers = re.findall(r"\d+",str(text))
-    return len(allNumbers)
+
+
 
 def listToString(list):
     return re.sub(r"[\s\[\]]","",str(list))
@@ -77,6 +76,7 @@ URL = "https://de.wikipedia.org/wiki/Universum"
 class ScrapeLinks:
     def __init__(self,startURL):
         self.startURL = startURL
+        self.urlDomain = 
         self.iter = 0
         self.resultDict = dict()
         self.resultItems = []
@@ -89,57 +89,18 @@ class ScrapeLinks:
         self.returnedValue = returnedValue
         return self.returnedValue
     
-    def isObjectScraped(self):
+    def _isObjectScraped(self):
         if(not self.isScraped):
             raise ReferenceError("Link has not been scraped yet")
-        
+
+    def _getNumAmount(text:str):
+        return len(re.findall(r"\d+",text))
     def scrape(self, layerDepth = None, maxReadSubLinks = None, maxLinksPerLay = None):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         
         #declaration of local functions
-        def scrapeWikipediaLink(self,URL):
-            print(f"   Open Article...")
-            try:
-                openedParentArticle = request.urlopen(URL,context=ssl._create_unverified_context())
-            except:
-                print("End of link structure has been reached")
-                return None 
-            print(f"   Extract data...")
-            parentWikiArticle = BeautifulSoup(openedParentArticle, "html.parser")
-            parentContainer = parentWikiArticle.find(class_="mw-parser-output")
-            urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
-            parentContainerAllLinks = [subLink["href"] for subLink in parentContainer.find_all("a",href=True)]
-            wantedArticleInfoContainer = []
-            if(maxReadSubLinks is not None and maxReadSubLinks > 0):
-               parentContainerAllLinks = parentContainerAllLinks[:maxReadSubLinks]
-            print(f"   Scrape sublinks...")
-            for subLink in parentContainerAllLinks:
-                hasWantedWords = "/wiki/" in subLink
-                hasBannedWords = [word not in subLink or word == subLink for word in self.bannedWordsInLink].count(False) != 0  #_areObjectsInObject(self,subLink,self.bannedWordsInLink)
-                isInNavRole = subLink in str(wikipediaArticleHTML.find_all(role="navigation"))
-                isInImgDesc = subLink in str(wikipediaArticleHTML.find_all(class_="wikitable"))
-                isWantedSubLink = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
-                if(isWantedSubLink):
-                    fullURL = f"{self.urlDomain}{URL}"
-                    openedArticle = request.urlopen(fullURL,context=ssl._create_unverified_context())
-                    wikiArticle = BeautifulSoup(openedArticle, "html.parser")
-                    try:
-                        articleTitle = wikiArticle.find(class_="mw-Article-title-main").text
-                    except:
-                        print("dafuq")
-                        print(fullURL)
-                        os.abort()
-                    try:
-                        articleImg = f"https:{wikiArticle.find(class_='mw-file-element').get('src')}"
-                    except:
-                        articleImg = None
-                    try:
-                        articleTxt = wikiArticle.find(class_="mw-parser-output").p.text
-                    except:
-                        articleTxt = None
-                    wantedArticleInfoContainer.append(dict(URL=fullURL,articleTitle=articleTitle,articleImg=articleImg,articleTxt=articleTxt))
-            print(f"   Amount of sublinks: {len(wantedArticleInfoContainer)}")
-            return wantedArticleInfoContainer
+        def isInIter(self,value,iter):
+            return [i in value for i in iter].count(False) != 0
         
         #printing important information
         print(format("{_>80}\n"))
@@ -157,8 +118,8 @@ class ScrapeLinks:
         }
         layerCondition = 1 if layerDepth >= 0 else 0
         #open and access the wanted Wikipedia Article
-        openedArticle = request.urlopen(self.startURL,context=ssl._create_unverified_context())
-        wikipediaArticleHTML = BeautifulSoup(openedArticle, "html.parser")
+        currOpenedArticle = request.urlopen(self.startURL,context=ssl._create_unverified_context())
+        wikipediaArticleHTML = BeautifulSoup(currOpenedArticle, "html.parser")
         #create and setup the dictionary
         firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-Article-title-main").text
         firstEntryDescImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
@@ -175,7 +136,7 @@ class ScrapeLinks:
             print(f" Current layer: {currLay} | Working on layer: {currLay+1}")
             #get items of current layer
             mainDictItems = [list(item) for item in list(mainDict.items())]
-            currLayAllItems = [item for item in mainDictItems if (_getNumberAmount(item[0]) == currLay+1)]
+            currLayAllItems = [item for item in mainDictItems if  self._getNumAmount(item[0]) == currLay+1]
             currLayAllKeys = [item[0] for item in currLayAllItems]
             #create the items for the next layer
             nextLayAllItems = []
@@ -183,40 +144,41 @@ class ScrapeLinks:
             for currURL in currLayAllItems:
                 
                 print(f"   Open Article...")
-                currURL = f"{self.urlDomain}{currURL}" if "https" not in currURL else currURL
+                currURL = f"{self.urlDomain}{currURL}"
                 try:
-                    openedArticle = request.urlopen(URL,context=ssl._create_unverified_context())
+                    currOpenedArticle = request.urlopen(currURL,context=ssl._create_unverified_context())
                 except:
                     print("End of link structure has been reached")
                     return None 
                 print(f"   Extract data...")
-                wikiArticle = BeautifulSoup(openedArticle, "html.parser")
-                parentContainer = wikiArticle.find(class_="mw-parser-output")
-                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(parentContainer)
-                parentContainerAllURLs = [iterURL["href"] for iterURL in parentContainer.find_all("a",href=True)[:maxReadLinks]]
-                hasWantedWords = "/wiki/" in currURL
-                if(hasWantedWords):
-                    hasBannedWords = [word not in currURL or word == currURL for word in self.bannedWordsInLink].count(False) != 0
-                    if(not hasWantedWords):
-                        isInNavRole = currURL in str(wikiArticle.find_all(role="navigation"))
-                        if(not isInNavRole):
-                            isInImgDesc = currURL in str(wikiArticle.find_all(class_="wikitable"))
-                            if(not isInImgDesc):
-                                try:
-                                    articleTitle = wikiArticle.find(class_="mw-Article-title-main").text
-                                except:
-                                    print("dafuq")
-                                    print(currURL)
-                                    os.abort()
-                                try:
-                                    articleImg = f"https:{wikiArticle.find(class_='mw-file-element').get('src')}"
-                                except:
-                                    articleImg = None
-                                try:
-                                    articleTxt = wikiArticle.find(class_="mw-parser-output").p.text
-                                except:
-                                    articleTxt = None
-                                print(f"   Scrape URLs...")
+                currWikiArticle = BeautifulSoup(currOpenedArticle, "html.parser")
+                nextURLContainer = currWikiArticle.find(class_="mw-parser-output")
+                allNextURLs = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)[:maxReadLinks]]
+                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(allNextURLs)
+                for nextURL in allNextURLs[:maxReadLinks]:
+                    nextURL = f"{self.urlDomain}{nextURL}" if "https" not in nextURL else nextURL
+                    if()
+                    hasWantedWords = "/wiki/" in currURL
+                    hasBannedWords = [word not in currURL for word in self.bannedWordsInLink].count(False) != 0
+                    isInNavRole = currURL in str(currWikiArticle.find_all(role="navigation"))
+                    isInImgDesc = currURL in str(currWikiArticle.find_all(class_="wikitable"))
+                    isWantedURL = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
+                    if(isWantedURL):
+                        nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
+                        nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
+                        try:
+                            articleTitle = currWikiArticle.find(class_="mw-Article-title-main").text
+                        except:
+                            articleTitle = None 
+                        try:
+                            articleImg = f"https:{currWikiArticle.find(class_='mw-file-element').get('src')}"
+                        except:
+                            articleImg = None
+                        try:
+                            articleTxt = currWikiArticle.find(class_="mw-parser-output").p.text
+                        except:
+                            articleTxt = None
+                        nextLayAllItems.append(dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt))
                     
 
                     
@@ -256,34 +218,34 @@ class ScrapeLinks:
         return mainDict
   
     def getLayer(self,targetLayer):
-        self.isObjectScraped()
+        self._isObjectScraped()
         targetLayer = int(targetLayer)
-        allLayEls = [item for item in self.resultItems if (_getNumberAmount(item[0])-1 == targetLayer)]
+        allLayEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 == targetLayer)]
         self.returnedValue = allLayEls
         return allLayEls
     
     def getParents(self,originLayer,extraLayers = None):
-        self.isObjectScraped()
+        self._isObjectScraped()
         originLayer = int(originLayer)
         if(extraLayers == None):
             extraLayers = originLayer
-        allParentEls = [item for item in self.resultItems if (_getNumberAmount(item[0])-1 < originLayer and _getNumberAmount(item[0])-1 >= originLayer-extraLayers)]   
+        allParentEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 < originLayer and _getNumAmount(item[0])-1 >= originLayer-extraLayers)]   
         self.returnedValue = allParentEls
         return allParentEls
                     
     def getChildren(self,originLayer,extraLayers = None):
-        self.isObjectScraped()
+        self._isObjectScraped()
         originLayer = int(originLayer)
         allChildEls = []
         if(extraLayers == None):
-            allChildEls = [item for item in self.resultItems if (_getNumberAmount(item[0])-1 > originLayer)]
+            allChildEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 > originLayer)]
         elif(type(extraLayers)==type(1)):    
-            allChildEls = [item for item in self.resultItems if (_getNumberAmount(item[0])-1 > originLayer and _getNumberAmount(item[0])-1 <= originLayer+extraLayers)]
+            allChildEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 > originLayer and _getNumAmount(item[0])-1 <= originLayer+extraLayers)]
         self.returnedValue = allChildEls
         return allChildEls
     
     def save(self, fileName, fileType = "txt", filePath = "results/", extraInfo = False):
-        self.isObjectScraped()
+        self._isObjectScraped()
         fileName = re.sub(r"[\s\.,\/]", '', fileName).upper()
         resultKeys = list(self.resultDict.keys()).copy()
         resultVals = list(self.resultDict.values()).copy()
@@ -302,11 +264,11 @@ class ScrapeLinks:
         file.close()
         
     def plotlify(self):
-        self.isObjectScraped()
+        self._isObjectScraped()
         keysList = [item[0] for item in self.resultItems]
         pxElements = [item[1]["ArticleTitle"] for item in self.resultItems]
         pxParents = [""]
-        pxParents[1:] = [self.resultDict[(lambda i : re.sub(r'(\,\d+|\d+)$','',i))(item[0])]["ArticleTitle"] for item in self.resultItems[1:]]
+        pxParents[1:] = [self.resultDict[(lambda i : re.sub(r'(\,\d+|\d+)$','',i))(item[0])]["articleTitle"] for item in self.resultItems[1:]]
         pxValues = [1 for _ in range(len(self.resultItems))]
         dbPrint(pxElements,len(pxElements),pxParents,len(pxParents))
         pxData= dict(

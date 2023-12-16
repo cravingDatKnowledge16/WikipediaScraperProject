@@ -10,13 +10,8 @@ import dis
 import os
 func = 5
 
-def func(n):
-    return n
 
-
-p = func
-
-print(p)
+print(t := 0)
 
 os.abort()
 
