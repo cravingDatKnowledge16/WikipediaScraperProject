@@ -8,10 +8,15 @@ import random
 import string as st
 import dis
 import os
-func = 5
+import curses
+from time import sleep
 
+t = curses.initscr()
 
-print(t := 0)
+t.addstr(0,0,"tnietnbuiluivenuiveruv")
+t.refresh()
+curses.endwin()
+
 
 os.abort()
 

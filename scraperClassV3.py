@@ -33,6 +33,7 @@ import json
 import varname as vn
 import imp
 import plotly.express as px
+# import consolemenu
 
 
 
@@ -82,30 +83,34 @@ class ScrapeLinks:
         self.resultItems = []
         self.layers = None
         self.isScraped = False
-        self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:","https://"]
+        self.bannedWordsInLink = ["Datei:","Hilfe:","Wikipedia:","Spezial:"]
         self.returnedValue = None
         
-    def __str__(self,returnedValue):
-        self.returnedValue = returnedValue
-        return self.returnedValue
- 
+    def __str__(self):
+        print("works")
+        return ""
+
+
     def _isObjectScraped(self):
         if(not self.isScraped):
             raise ReferenceError("Link has not been scraped yet")
 
-    def _getNumAmount(text:str):
+    
+    def _getNumAmount(self,text:str):
         return len(re.findall(r"\d+",text))
-    def scrape(self, layerDepth = None, maxReadSubLinks = None, maxLinksPerLay = None):
+    
+    def scrape(self, layerDepth = None, maxReadLinks = None, maxLinksPerLay = None):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         
         #declaration of local functions
         def isInIter(value,iter):
-            return [i in value for i in iter].count(False) != 0
+            result = [i in value for i in iter].count(False) != 0
+            return result
         
         #printing important information
         print(format("{_>80}\n"))
         print(f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
-        print(f"layerDepth: {layerDepth}, maxReadSubLinks: {maxReadSubLinks}, maxLinksPerLay: {maxLinksPerLay}")
+        print(f"layerDepth: {layerDepth}, maxReadLinks: {maxReadLinks}, maxLinksPerLay: {maxLinksPerLay}")
         # initiation of important variables
         self.isScraped = True
         startTime = time.perf_counter()
@@ -120,47 +125,61 @@ class ScrapeLinks:
         currOpenedArticle = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaArticleHTML = BeautifulSoup(currOpenedArticle, "html.parser")
         #create and setup the dictionary
-        firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-article-title-main").text
+    
+        firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-page-title-main").text
         firstEntryDescImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
         firstEntryDescTxt = wikipediaArticleHTML.find(class_='mw-parser-output').p.text
-        mainDict["0"] = dict(URL=self.startURL,ArticleTitle=firstEntryArticleTitle,ArticleImg=firstEntryDescImg,ArticleTxt=firstEntryDescTxt)
+        mainDict["0"] = dict(URL = self.startURL ,title=firstEntryArticleTitle,ArticleImg=firstEntryDescImg,ArticleTxt=firstEntryDescTxt)
         # initiate scraping
         layer = 0
         while(layerConditions[f"{layerCondition}"](layer,layerDepth)):  
-            print(f" Current layer: {layer} | Working on layer: {layer+1}")
+            print(f"Current layer: {layer} | Working on layer: {layer+1}")
             #get items of current layer
             mainDictItems = [list(item) for item in list(mainDict.items())]
-            currLayItems = [item for item in mainDictItems if  self._getNumAmount(item[0]) == currLayItems+1]
+            currLayItems = [item for item in mainDictItems if self._getNumAmount(item[0]) == layer+1]
             if(len(currLayItems) == 0):
                 break
             #create the items for the next layer
             layerItemCounter = 1
             currElIndex = 0
             for currURL in currLayItems:
-                print(f"   Open Article...")
-                currURL = f"{self.urlDomain}{currURL}"
+                print(f"    Open current article number {currElIndex}...")
+                currURL = str(currURL[1]['URL'])
                 try:
                     currOpenedArticle = request.urlopen(currURL,context=ssl._create_unverified_context())
                 except:
                     print("End of link structure has been reached")
                     return None 
-                print(f"   Extract data...")
+                print(f"    Extract data...")
                 currWikiArticle = BeautifulSoup(currOpenedArticle, "html.parser")
                 nextURLContainer = currWikiArticle.find(class_="mw-parser-output")
-                nextLay = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)[:maxReadLinks]]
+                nextLay = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)]
                 maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(nextLay)
                 nextElIndex = 0
+                print(f"    Check next article number {nextElIndex}...")
                 for nextURL in nextLay[:maxReadLinks]:
                     nextURL = f"{self.urlDomain}{nextURL}" if "https" not in nextURL else nextURL
-                    if(not isInIter(nextURL,list(mainDict.values()))):
-                        hasWantedWords = "/wiki/" in currURL
-                        hasBannedWords = [word not in currURL for word in self.bannedWordsInLink].count(False) != 0
-                        isInNavRole = currURL in str(currWikiArticle.find_all(role="navigation"))
-                        isInImgDesc = currURL in str(currWikiArticle.find_all(class_="wikitable"))
+                    print(f"        '{nextURL}' already exists?")
+                    if(isInIter(nextURL,[val["URL"] for val in list(mainDict.values())])):
+                        print(f"        Does not exist!")
+                        print(f"            Is wanted article?")
+                        # dbPrint(nextURL)
+                        hasWantedWords = "/wiki/" in nextURL
+                        # dbPrint(hasWantedWords)
+                        hasBannedWords = [word in nextURL for word in self.bannedWordsInLink].count(True) != 0
+                        # dbPrint(hasBannedWords)
+                        isInNavRole = nextURL in str(currWikiArticle.find_all(role="navigation"))
+                        # dbPrint(isInNavRole)
+                        isInImgDesc = nextURL in str(currWikiArticle.find_all(class_="wikitable"))
+                        # dbPrint(isInImgDesc)
                         isWantedURL = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
+                        # dbPrint(isWantedURL)
                         if(isWantedURL):
+                            print(f"            Is wanted!")
+                            print(f"                Opening next article number {nextElIndex}")
                             nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
                             nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
+                            print(f"                Extracting data...")
                             try:
                                 articleTitle = nextWikiArticle.find(class_="mw-Article-title-main").text
                             except:
@@ -174,12 +193,17 @@ class ScrapeLinks:
                             except:
                                 articleTxt = None
                             #print(f"   All processed URL: {allArticlesCounter} | Current scraped link: {layerItemCounter}/{len(currLayItems)}")
+                            print(f"                Adding to main dict...")
                             nextElKey = f"{currLayItems[currElIndex][0]},{nextElIndex}"
                             mainDict[nextElKey] = dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt)
-                            nextElIndex+=1
-                currElIndex+=1
-                                    #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
-            currLayItems+=1
+                            print(f"                Done!")
+                        else:
+                            print(f"            Not wanted!")
+                    else:
+                        print(f"        Already exists!")
+                    nextElIndex+=1
+                currElIndex+=1                  #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
+            layer+=1
         self.resultDict = mainDict
         self.layers = layer
         self.resultItems = [list(item) for item in list(mainDict.items())]
@@ -255,7 +279,7 @@ class ScrapeLinks:
 
 def dbPrint(*values):
     for itemIndex in range(len(values)):    
-        print(f"{vn.argname(f'values[{itemIndex}]')}: {values[itemIndex]}")
+        print(f"{vn.argname(f'values[{itemIndex}]')}: {values[itemIndex]}\n")
     
 
         
