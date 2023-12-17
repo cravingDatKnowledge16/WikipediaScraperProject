@@ -76,7 +76,7 @@ URL = "https://de.wikipedia.org/wiki/Universum"
 class ScrapeLinks:
     def __init__(self,startURL):
         self.startURL = startURL
-        self.urlDomain = 
+        self.urlDomain = re.search(r"\w+:\/\/\w+\.\w+\.\w+",self.startURL).group()
         self.iter = 0
         self.resultDict = dict()
         self.resultItems = []
@@ -88,7 +88,7 @@ class ScrapeLinks:
     def __str__(self,returnedValue):
         self.returnedValue = returnedValue
         return self.returnedValue
-    
+ 
     def _isObjectScraped(self):
         if(not self.isScraped):
             raise ReferenceError("Link has not been scraped yet")
@@ -99,7 +99,7 @@ class ScrapeLinks:
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         
         #declaration of local functions
-        def isInIter(self,value,iter):
+        def isInIter(value,iter):
             return [i in value for i in iter].count(False) != 0
         
         #printing important information
@@ -111,7 +111,6 @@ class ScrapeLinks:
         startTime = time.perf_counter()
         mainDict = dict()
         allLinksCounter = 1
-        currLay = 0
         layerConditions = {
             "0":lambda a,b : a < b,
             "1":lambda a,b : True
@@ -121,28 +120,23 @@ class ScrapeLinks:
         currOpenedArticle = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaArticleHTML = BeautifulSoup(currOpenedArticle, "html.parser")
         #create and setup the dictionary
-        firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-Article-title-main").text
+        firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-article-title-main").text
         firstEntryDescImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
         firstEntryDescTxt = wikipediaArticleHTML.find(class_='mw-parser-output').p.text
         mainDict["0"] = dict(URL=self.startURL,ArticleTitle=firstEntryArticleTitle,ArticleImg=firstEntryDescImg,ArticleTxt=firstEntryDescTxt)
-        # setup for duplicate removal
-        mainDictCheckList = [["0",mainDict["0"]]] #[list(item) for item in list(mainDict.items())]
-        itemToAppend = []
-        appendToCheckList = True
-        realNextElLayPos = 0
-        
         # initiate scraping
-        while(layerConditions[f"{layerCondition}"](currLay,layerDepth)):  
-            print(f" Current layer: {currLay} | Working on layer: {currLay+1}")
+        layer = 0
+        while(layerConditions[f"{layerCondition}"](layer,layerDepth)):  
+            print(f" Current layer: {layer} | Working on layer: {layer+1}")
             #get items of current layer
             mainDictItems = [list(item) for item in list(mainDict.items())]
-            currLayAllItems = [item for item in mainDictItems if  self._getNumAmount(item[0]) == currLay+1]
-            currLayAllKeys = [item[0] for item in currLayAllItems]
+            currLayItems = [item for item in mainDictItems if  self._getNumAmount(item[0]) == currLayItems+1]
+            if(len(currLayItems) == 0):
+                break
             #create the items for the next layer
-            nextLayAllItems = []
             layerItemCounter = 1
-            for currURL in currLayAllItems:
-                
+            currElIndex = 0
+            for currURL in currLayItems:
                 print(f"   Open Article...")
                 currURL = f"{self.urlDomain}{currURL}"
                 try:
@@ -153,74 +147,48 @@ class ScrapeLinks:
                 print(f"   Extract data...")
                 currWikiArticle = BeautifulSoup(currOpenedArticle, "html.parser")
                 nextURLContainer = currWikiArticle.find(class_="mw-parser-output")
-                allNextURLs = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)[:maxReadLinks]]
-                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(allNextURLs)
-                for nextURL in allNextURLs[:maxReadLinks]:
+                nextLay = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)[:maxReadLinks]]
+                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(nextLay)
+                nextElIndex = 0
+                for nextURL in nextLay[:maxReadLinks]:
                     nextURL = f"{self.urlDomain}{nextURL}" if "https" not in nextURL else nextURL
-                    if()
-                    hasWantedWords = "/wiki/" in currURL
-                    hasBannedWords = [word not in currURL for word in self.bannedWordsInLink].count(False) != 0
-                    isInNavRole = currURL in str(currWikiArticle.find_all(role="navigation"))
-                    isInImgDesc = currURL in str(currWikiArticle.find_all(class_="wikitable"))
-                    isWantedURL = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
-                    if(isWantedURL):
-                        nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
-                        nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
-                        try:
-                            articleTitle = currWikiArticle.find(class_="mw-Article-title-main").text
-                        except:
-                            articleTitle = None 
-                        try:
-                            articleImg = f"https:{currWikiArticle.find(class_='mw-file-element').get('src')}"
-                        except:
-                            articleImg = None
-                        try:
-                            articleTxt = currWikiArticle.find(class_="mw-parser-output").p.text
-                        except:
-                            articleTxt = None
-                        nextLayAllItems.append(dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt))
-                    
-
-                    
-                for nextLayItem in getSublinks(self,currLayItem[1]["URL"]):
-                    nextLayAllItems.append(nextLayItem)
-                print(f"   All processed URL: {allArticlesCounter} | Current scraped link: {layerItemCounter}/{len(currLayAllItems)}")
-                allArticlesCounter+=1
-                layerItemCounter+=1
-            #copy the next layer items onto the main dictionary
-            currLayDuplCounter = 0
-            for currLayKeyIndex in range(len(currLayAllKeys)):
-                realNextElLayPos = 0
-                #if(maxLinksPerLay is not None and maxLinksPerLay > 0):
-                 #   nextLayAllItems = nextLayAllItems[:maxLinksPerLay]
-                for nextElLayPos in range(len(nextLayAllItems[currLayKeyIndex])):
-                    # prevent creation of duplicates and thereby infinite recursion
-                    for checkItem in mainDictCheckList:
-                        if(nextLayAllItems[currLayKeyIndex][nextElLayPos]["URL"] == checkItem[1]["URL"]):
-                            appendToCheckList = False
-                            break
-                    if(appendToCheckList):
-                        itemToAppend = [f"{currLayAllKeys[currLayKeyIndex]},{realNextElLayPos}",nextLayAllItems[currLayKeyIndex][nextElLayPos]] #appends every element of the next layer onto the main dictionary with a specific key as a its position
-                        mainDictCheckList.append(itemToAppend)
-                        mainDict[itemToAppend[0]] = itemToAppend[1]
-                        realNextElLayPos+=1
-                    else:
-                        appendToCheckList = True
-                        currLayDuplCounter+=1
-            print(f"  Amount of duplicates in layer: {currLayDuplCounter}")
-            #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
-            if(len(nextLayAllItems) == 0):
-                break
-            currLay+=1
+                    if(not isInIter(nextURL,list(mainDict.values()))):
+                        hasWantedWords = "/wiki/" in currURL
+                        hasBannedWords = [word not in currURL for word in self.bannedWordsInLink].count(False) != 0
+                        isInNavRole = currURL in str(currWikiArticle.find_all(role="navigation"))
+                        isInImgDesc = currURL in str(currWikiArticle.find_all(class_="wikitable"))
+                        isWantedURL = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
+                        if(isWantedURL):
+                            nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
+                            nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
+                            try:
+                                articleTitle = nextWikiArticle.find(class_="mw-Article-title-main").text
+                            except:
+                                articleTitle = None 
+                            try:
+                                articleImg = f"https:{nextWikiArticle.find(class_='mw-file-element').get('src')}"
+                            except:
+                                articleImg = None
+                            try:
+                                articleTxt = nextWikiArticle.find(class_="mw-parser-output").p.text
+                            except:
+                                articleTxt = None
+                            #print(f"   All processed URL: {allArticlesCounter} | Current scraped link: {layerItemCounter}/{len(currLayItems)}")
+                            nextElKey = f"{currLayItems[currElIndex][0]},{nextElIndex}"
+                            mainDict[nextElKey] = dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt)
+                            nextElIndex+=1
+                currElIndex+=1
+                                    #if the next layer doesn't contain any items, stop execution of this function and return the main dictionary and the layer, at which point execution was stopped
+            currLayItems+=1
         self.resultDict = mainDict
-        self.layers = currLay
+        self.layers = layer
         self.resultItems = [list(item) for item in list(mainDict.items())]
         return mainDict
   
     def getLayer(self,targetLayer):
         self._isObjectScraped()
         targetLayer = int(targetLayer)
-        allLayEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 == targetLayer)]
+        allLayEls = [item for item in self.resultItems if  self._getNumAmount(item[0])-1 == targetLayer]
         self.returnedValue = allLayEls
         return allLayEls
     
@@ -229,7 +197,7 @@ class ScrapeLinks:
         originLayer = int(originLayer)
         if(extraLayers == None):
             extraLayers = originLayer
-        allParentEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 < originLayer and _getNumAmount(item[0])-1 >= originLayer-extraLayers)]   
+        allParentEls = [item for item in self.resultItems if  self._getNumAmount(item[0])-1 < originLayer and self._getNumAmount(item[0])-1 >= originLayer-extraLayers]   
         self.returnedValue = allParentEls
         return allParentEls
                     
@@ -238,9 +206,9 @@ class ScrapeLinks:
         originLayer = int(originLayer)
         allChildEls = []
         if(extraLayers == None):
-            allChildEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 > originLayer)]
+            allChildEls = [item for item in self.resultItems if  self._getNumAmount(item[0])-1 > originLayer]
         elif(type(extraLayers)==type(1)):    
-            allChildEls = [item for item in self.resultItems if  _getNumAmount(item[0])-1 > originLayer and _getNumAmount(item[0])-1 <= originLayer+extraLayers)]
+            allChildEls = [item for item in self.resultItems if  self._getNumAmount(item[0])-1 > originLayer and self._getNumAmount(item[0])-1 <= originLayer+extraLayers]
         self.returnedValue = allChildEls
         return allChildEls
     
