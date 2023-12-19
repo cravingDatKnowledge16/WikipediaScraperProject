@@ -33,6 +33,7 @@ import json
 import varname as vn
 import imp
 import plotly.express as px
+import curses as cur
 # import consolemenu
 
 
@@ -108,7 +109,7 @@ class ScrapeLinks:
             return result
         
         #printing important information
-        print(format("{_>80}\n"))
+        print("".rjust(100,"-"))
         print(f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
         print(f"layerDepth: {layerDepth}, maxReadLinks: {maxReadLinks}, maxLinksPerLay: {maxLinksPerLay}")
         # initiation of important variables
