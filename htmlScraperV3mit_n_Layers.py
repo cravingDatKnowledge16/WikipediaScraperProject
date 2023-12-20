@@ -83,6 +83,8 @@ def scrapeLinksNotOrdered(numberOfTimes, startLink):
     saveToTXT(globalLinkSet, "ScraperV3Result-no1")
 
 
-scrapeLinksNotOrdered(3, "/wiki/Kadua_cookiana")
+# scrapeLinksNotOrdered(3, "/wiki/Kadua_cookiana")
 zeitpunkt2 = time.perf_counter()
 print(f"Dauer: {zeitpunkt2-zeitpunkt1} Fehler: {errorCounter} ({round((zeitpunkt2-zeitpunkt1)/60, ndigits=3)}min)")
+
+saveToTXT([1,2,3,4,5],"TESt")

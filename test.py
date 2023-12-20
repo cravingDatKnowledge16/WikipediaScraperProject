@@ -10,12 +10,14 @@ import dis
 import os
 import curses
 from time import sleep
+import re
 
-t = curses.initscr()
+# file_dir = os.path.dirname(os.path.realpath('__file__'))
+# file = os.path.join(file_dir,"results/TETETE.txt")
 
-t.addstr(0,0,"tnietnbuiluivenuiveruv")
-t.refresh()
-curses.endwin()
+if(True):
+    x = 9
+print(x)
 
 
 os.abort()
@@ -24,7 +26,7 @@ def d():
     t = 3
     def a():
         nonlocal t
-        t = 5
+        t = 3
         def r():
             nonlocal t
    # t = 9
