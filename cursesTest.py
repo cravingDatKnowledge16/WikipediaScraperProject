@@ -1,18 +1,12 @@
 import time as T
-from curses import wrapper
+import curses as C
 
-def main(stdscr):
-    # Clear screen
-    stdscr.clear()
 
-    # This raises ZeroDivisionError when i == 10.
-    for i in range(0, 11):
-        v = i-10
-        stdscr.addstr(0, 10-i,str(i))
-        stdscr.refresh()
-        T.sleep(0.5)
+string = "niofnrenvner"
+lstring = len(string)
 
-    stdscr.refresh()
-    stdscr.getkey()
 
-wrapper(main)
+S = C.initscr()
+S.addstr(0,0,f"{string}\n")
+S.getch()
+C.endwin()

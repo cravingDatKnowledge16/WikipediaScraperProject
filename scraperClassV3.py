@@ -13,7 +13,7 @@ RULES:
 
 
 from ast import main
-import numbers
+import numpy as num
 from tkinter.tix import Tree
 from tokenize import String
 from urllib import request
@@ -31,42 +31,9 @@ import json
 import varname as vn
 import plotly.express as px
 import curses as cur
+import timeit
 # import consolemenu
 
-
-
-
-
-
-
-def listToString(list):
-    return re.sub(r"[\s\[\]]","",str(list))
-
-def getIndexByKey(key,dict):
-    return list(dict.keys()).index(key)
-
-def saveDictToTXT(dict, docName): 
-    docName = re.sub(r"[\s\.,]", '', docName)
-    dictKeys = [item[0] for item in list(dict.items())]
-    dictValues = [item[1] for item in list(dict.items())]
-    open(f"results/{docName}.txt","x")
-    with open(f'results/{docName}.txt', 'w') as tempFile:
-        for itemIndex in range(len(dict)):
-            tempFile.write(f"  {dictKeys[itemIndex]} : {dictValues[itemIndex]}\n")
-    
-def divideWeirdly(el):
-    return [el*0.5,el*1.5]
-
-def squareShit(x):
-     return [pow(x,0),pow(x,2)]
-
-#def DOIT():
-    #TADA = applyFuncRecurInDict(startUrl,scrapeWikipediaLinks,2)
-    #TADA = applyFuncRecurInDict(123,divideWeirdly,5)
-    #print(f"TADA: {TADA}")
-    #saveDictToTXT(TADA,"TADA")
-
-#DOIT()
 
 
 URL = "https://de.wikipedia.org/wiki/Universum"
@@ -96,20 +63,23 @@ class ScrapeLinks:
     
     def _getNumAmount(self,text:str):
         return len(re.findall(r"\d+",text))
-    
+        
     def scrape(self, layerDepth = None, maxReadLinks = None, maxLinksPerLay = None, constSave = False):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         startTime = time.perf_counter()
     
         #declaration of local functions
-        def isInIter(value,iter):
-            result = [i in value for i in iter].count(False) != 0
-            return result
+        def isValInIter(value,iter):
+            for i in iter:
+                if(i in value):
+                    return True
+            return False
         
         #printing important information
         screenBuffer = 0
         screen = cur.initscr()
-        cur.noecho()
+        screenWidth = screen.getmaxyx()[1]
+        # cur.noecho()
         screen.clear()
         screen.addstr(0,0,"".rjust(100,"-"))
         screen.addstr(1,0,f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
@@ -137,12 +107,16 @@ class ScrapeLinks:
         firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-page-title-main").text
         firstEntryDescImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
         firstEntryDescTxt = wikipediaArticleHTML.find(class_='mw-parser-output').p.text
-        mainDict["0"] = dict(URL = self.startURL ,title=firstEntryArticleTitle,img=firstEntryDescImg,txt=firstEntryDescTxt)
+        firstEntry = dict(URL = self.startURL ,title=firstEntryArticleTitle,img=firstEntryDescImg,txt=firstEntryDescTxt)
+        mainDict["0"] = firstEntry
+        file.write(f"0 : {firstEntry}\n")
         # initiate scraping
         layer = 0
+        processSpeed = 0
+        totalScrapedURLs = 0
         while(layer <= layerDepth):  
             #get items of current layer
-            mainDictItems = [list(item) for item in list(mainDict.items())]
+            mainDictItems = [list(item) for item    in list(mainDict.items())]
             currLayItems = [item for item in mainDictItems if self._getNumAmount(item[0]) == layer+1]
             if(len(currLayItems) == 0):
                 break
@@ -160,12 +134,16 @@ class ScrapeLinks:
                 currWikiArticle = BeautifulSoup(currOpenedArticle, "html.parser")
                 nextURLContainer = currWikiArticle.find(class_="mw-parser-output")
                 nextLay = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)]
-                maxReadLinks = maxReadLinks if maxReadLinks >= 0 else len(nextLay)
+                if(type(maxReadLinks) is not type(1)):
+                    maxReadLinks = len(nextLay)
                 nextElIndex = 0
-                for nextURL in nextLay[:maxReadLinks]:
-                    screen.addstr(layer+screenBuffer,0,f"Current layer: {layer} | Scraping current article {currElIndex+1}/{len(currLayItems)} | Scraping next article {nextElIndex}/{len(nextLay[:maxReadLinks])-1}             ")
+                realNextElIndex = 0
+                unWantedURLs = 0
+                nextLay = nextLay[:maxReadLinks]
+                for nextURL in nextLay:
+                    startTime = time.perf_counter()
                     nextURL = f"{self.urlDomain}{nextURL}" if "https" not in nextURL else nextURL
-                    if(isInIter(nextURL,[val["URL"] for val in list(mainDict.values())])):
+                    if(isValInIter(re.findall(r"(.+)$",nextURL)[0],[val["URL"] for val in list(mainDict.values())])):
                         hasWantedWords = "/wiki/" in nextURL
                         hasBannedWords = [word in nextURL for word in self.bannedWordsInLink].count(True) != 0
                         isInNavRole = nextURL in str(currWikiArticle.find_all(role="navigation"))
@@ -176,7 +154,7 @@ class ScrapeLinks:
                             nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
                             nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
                             try:
-                                articleTitle = nextWikiArticle.find(class_="mw-Article-title-main").text
+                                articleTitle = nextWikiArticle.find(class_="mw-page-title-main").text
                             except:
                                 articleTitle = None 
                             try:
@@ -184,22 +162,33 @@ class ScrapeLinks:
                             except:
                                 articleImg = None
                             try:
-                                articleTxt = nextWikiArticle.find(class_="mw-parser-output").p.text
+                                articleTxt = nextWikiArticle.find(class_="mw-parser-output").p.text.replace("\\n","")
                             except:
                                 articleTxt = None
-                            nextElKey = f"{currLayItems[currElIndex][0]},{nextElIndex}"
+                            nextElKey = f"{currLayItems[currElIndex][0]},{realNextElIndex}"
                             mainDict[nextElKey] = dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt)
                             if(constSave):
                                 file.write(f"{nextElKey} : {mainDict[nextElKey]}\n")
+                            realNextElIndex += 1
+                            endTime = time.perf_counter()
+                        else:
+                            unWantedURLs += 1
+                    else:
+                        unWantedURLs += 1
+                    endTime = time.perf_counter()
+                    deltaTime = endTime - startTime
+                    processSpeed += deltaTime
+                    averageProcSpeed = format(processSpeed / float(1+nextElIndex), ".4f")
+                    displayMessage = f"[Current layer: {layer} | Scraping current article {currElIndex+1}/{len(currLayItems)} | Scraping next article {nextElIndex+1}/{len(nextLay)} | # unwanted URLs {unWantedURLs}/{len(nextLay)} | Average URL process speed {averageProcSpeed}]\n"
+                    screen.addstr(layer+screenBuffer,0,displayMessage)
                     nextElIndex+=1
                 currElIndex+=1                  
             layer+=1
         file.close()
         screen.addstr(layer+screenBuffer,0,"\n")
-        screen.deleteln()
         screen.refresh()
-        cur.echo()
-        screen.getkey()
+        # cur.echo()
+        screen.getch()
         cur.endwin()
         self.resultDict = mainDict
         self.layers = layer
@@ -256,10 +245,10 @@ class ScrapeLinks:
     def plotlify(self):
         self._isObjectScraped()
         keysList = [item[0] for item in self.resultItems]
-        pxElements = [item[1]["ArticleTitle"] for item in self.resultItems]
+        pxElements = [item[1]["title"] for item in self.resultItems]
         pxParents = [""]
-        pxParents[1:] = [self.resultDict[(lambda i : re.sub(r'(\,\d+|\d+)$','',i))(item[0])]["articleTitle"] for item in self.resultItems[1:]]
-        pxValues = [1 for _ in range(len(self.resultItems))]
+        pxParents[1:] = [self.resultDict[(lambda i : re.sub(r'(\,\d+|\d+)$','',i))(item[0])]["title"] for item in self.resultItems[1:]]
+        pxValues = [1 for _ in self.resultItems]
         dbPrint(pxElements,len(pxElements),pxParents,len(pxParents))
         pxData= dict(
             el = pxElements,
@@ -282,10 +271,10 @@ def dbPrint(*values):
 
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
-z = test.scrape(0,15,20,True)
+z = test.scrape(10,constSave=True)
 y = test.save(f"test_{datetime.datetime.now()}")
 test.getChildren(1)
-# test.plotlify()
+# test.plotlify() 
 os.abort()
 
 dbPrint(test.returnedValue)
