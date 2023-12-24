@@ -14,10 +14,7 @@ import re
 
 import timeit
 
-def isValInIter(value,iter):
-    for i in iter:
-        if(value in i):
-            return True
-    return False
+import scraperClassV3
 
-print(isValInIter("a",["pka","ikni"]))
+
+print(os.path.basename("/Users/philip/Desktop/Coding/GitHub/WikipediaScraperProject/"))

@@ -60,11 +60,11 @@ class ScrapeLinks:
         if(not self.isScraped):
             raise ReferenceError("Link has not been scraped yet")
 
-    
     def _getNumAmount(self,text:str):
         return len(re.findall(r"\d+",text))
         
-    def scrape(self, layerDepth = None, maxReadLinks = None, maxLinksPerLay = None, constSave = False):
+        
+    def scrape(self, layerDepth = None, maxReadLinks = None, maxLinksPerLay = None, constSave = True, fileData = None):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         startTime = time.perf_counter()
     
@@ -100,7 +100,10 @@ class ScrapeLinks:
             "1":lambda a,b : True
         }
         layerCondition = 1 if layerDepth >= 0 else 0
-        
+        # initiation of constant saving
+        if (type(fileData) == dict):
+            fileData["givenName"] = fileData["givenName"] if f"{os.path.dirname(__file__)}{''}" else ''
+            pass
         if(constSave):
             fileName = str(datetime.datetime.now()).replace(":","_")
             file = open(f"{os.path.dirname(__file__)}/results/{fileName}.txt","a")
@@ -288,8 +291,8 @@ def dbPrint(*values):
 
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
-z = test.scrape(10,constSave=True)
-test.getChildren(1)
+# z = test.scrape(10,constSave=True)
+# test.getChildren(1)
 # test.plotlify() 
 os.abort()
 
