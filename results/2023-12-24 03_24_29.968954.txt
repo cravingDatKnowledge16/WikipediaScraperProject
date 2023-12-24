@@ -1,0 +1,3 @@
+0 : {'URL': 'https://de.wikipedia.org/wiki/Photon', 'title': 'Photon', 'img': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Disambig-dark.svg/25px-Disambig-dark.svg.png', 'txt': 'Photon (γ)\n'}
+0,0 : {'URL': 'https://de.wiktionary.org/wiki/Photon', 'title': 'Photon', 'img': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/15px-Loudspeaker.svg.png', 'txt': 'Alternative Schreibweisen:'}
+0,0,0 : {'URL': 'https://de.wikipedia.org/wiki/Photo', 'title': 'Foto', 'img': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Disambig-dark.svg/25px-Disambig-dark.svg.png', 'txt': 'Foto steht für:\n'}

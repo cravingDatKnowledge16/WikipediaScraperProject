@@ -14,7 +14,7 @@ RULES:
 
 from ast import main
 import numpy as num
-from tkinter.tix import Tree
+# from tkinter.tix import Tree
 from tokenize import String
 from urllib import request
 from bs4 import BeautifulSoup
@@ -71,6 +71,11 @@ class ScrapeLinks:
         #declaration of local functions
         def isValInIter(value,iter):
             for i in iter:
+                if(value in i):
+                    return True
+            return False
+        def isIterInVal(value,iter):
+            for i in iter:
                 if(i in value):
                     return True
             return False
@@ -78,6 +83,7 @@ class ScrapeLinks:
         #printing important information
         screenBuffer = 0
         screen = cur.initscr()
+        # cur.endwin()
         screenWidth = screen.getmaxyx()[1]
         # cur.noecho()
         screen.clear()
@@ -103,7 +109,6 @@ class ScrapeLinks:
         currOpenedArticle = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaArticleHTML = BeautifulSoup(currOpenedArticle, "html.parser")
         #create and setup the dictionary
-    
         firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-page-title-main").text
         firstEntryDescImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
         firstEntryDescTxt = wikipediaArticleHTML.find(class_='mw-parser-output').p.text
@@ -140,48 +145,60 @@ class ScrapeLinks:
                 realNextElIndex = 0
                 unWantedURLs = 0
                 nextLay = nextLay[:maxReadLinks]
+                doAppend = True
+                URLsubdir = ""
                 for nextURL in nextLay:
                     startTime = time.perf_counter()
                     nextURL = f"{self.urlDomain}{nextURL}" if "https" not in nextURL else nextURL
-                    if(isValInIter(re.findall(r"(.+)$",nextURL)[0],[val["URL"] for val in list(mainDict.values())])):
-                        hasWantedWords = "/wiki/" in nextURL
-                        hasBannedWords = [word in nextURL for word in self.bannedWordsInLink].count(True) != 0
-                        isInNavRole = nextURL in str(currWikiArticle.find_all(role="navigation"))
-                        isInImgDesc = nextURL in str(currWikiArticle.find_all(class_="wikitable"))
-                        isWantedURL = hasWantedWords and not hasBannedWords and not isInNavRole and not isInImgDesc
-                        if(isWantedURL):
-                            screen.refresh()
-                            nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
-                            nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
-                            try:
-                                articleTitle = nextWikiArticle.find(class_="mw-page-title-main").text
-                            except:
-                                articleTitle = None 
-                            try:
-                                articleImg = f"https:{nextWikiArticle.find(class_='mw-file-element').get('src')}"
-                            except:
-                                articleImg = None
-                            try:
-                                articleTxt = nextWikiArticle.find(class_="mw-parser-output").p.text.replace("\\n","")
-                            except:
-                                articleTxt = None
-                            nextElKey = f"{currLayItems[currElIndex][0]},{realNextElIndex}"
-                            mainDict[nextElKey] = dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt)
-                            if(constSave):
-                                file.write(f"{nextElKey} : {mainDict[nextElKey]}\n")
-                            realNextElIndex += 1
-                            endTime = time.perf_counter()
+                    allURLs = [val["URL"] for val in list(mainDict.values())]
+                    try:
+                        URLsubdir = re.search(r"(?<=wiki\/).+",nextURL).group()
+                    except:
+                        URLsubdir = ""
+                        doAppend = False
+                    if(doAppend):
+                        if(not isValInIter(URLsubdir,allURLs)):
+                            hasBannedWords = isIterInVal(nextURL,self.bannedWordsInLink)
+                            isInNavRole = isValInIter(nextURL,currWikiArticle.find_all(role="navigation"))
+                            isInImgDesc = isValInIter(nextURL,currWikiArticle.find_all(role="wikitable"))
+                            isWantedURL = not hasBannedWords and not isInNavRole and not isInImgDesc
+                            if(isWantedURL):
+                                screen.refresh()
+                                nextOpenedArticle = request.urlopen(nextURL,context=ssl._create_unverified_context())
+                                nextWikiArticle = BeautifulSoup(nextOpenedArticle, "html.parser")
+                                try:
+                                    articleTitle = nextWikiArticle.find(class_="mw-page-title-main").text
+                                except:
+                                    articleTitle = None 
+                                try:
+                                    articleImg = f"https:{nextWikiArticle.find(class_='mw-file-element').get('src')}"
+                                except:
+                                    articleImg = None
+                                try:
+                                    articleTxt = nextWikiArticle.find(class_="mw-parser-output").p.text.replace("\\n","")
+                                except:
+                                    articleTxt = None
+                                nextElKey = f"{currLayItems[currElIndex][0]},{realNextElIndex}"
+                                mainDict[nextElKey] = dict(URL = nextURL, title = articleTitle, img = articleImg, txt = articleTxt)
+                                if(constSave):
+                                    file.write(f"{nextElKey} : {mainDict[nextElKey]}\n")
+                                realNextElIndex += 1
+                                endTime = time.perf_counter()
+                            else:
+                                unWantedURLs += 1
                         else:
                             unWantedURLs += 1
                     else:
                         unWantedURLs += 1
+                    doAppend = True
                     endTime = time.perf_counter()
                     deltaTime = endTime - startTime
                     processSpeed += deltaTime
-                    averageProcSpeed = format(processSpeed / float(1+nextElIndex), ".4f")
+                    averageProcSpeed = format(processSpeed / float(1+totalScrapedURLs), ".4f")
                     displayMessage = f"[Current layer: {layer} | Scraping current article {currElIndex+1}/{len(currLayItems)} | Scraping next article {nextElIndex+1}/{len(nextLay)} | # unwanted URLs {unWantedURLs}/{len(nextLay)} | Average URL process speed {averageProcSpeed}]\n"
                     screen.addstr(layer+screenBuffer,0,displayMessage)
                     nextElIndex+=1
+                    totalScrapedURLs+=1
                 currElIndex+=1                  
             layer+=1
         file.close()
@@ -272,7 +289,6 @@ def dbPrint(*values):
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
 z = test.scrape(10,constSave=True)
-y = test.save(f"test_{datetime.datetime.now()}")
 test.getChildren(1)
 # test.plotlify() 
 os.abort()

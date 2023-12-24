@@ -14,8 +14,10 @@ import re
 
 import timeit
 
-a = time.perf_counter()
-x = [i for i in range(10000)]
-b = time.perf_counter()
+def isValInIter(value,iter):
+    for i in iter:
+        if(value in i):
+            return True
+    return False
 
-print(b-a)
+print(isValInIter("a",["pka","ikni"]))
