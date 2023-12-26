@@ -1,0 +1,126 @@
+Photon ||  || False
+Photon (Begriffsklärung) || Photon || False
+Elementarteilchen || Photon || False
+Boson || Photon || False
+Eichboson || Photon || False
+Elektrische Ladung || Photon || False
+Masse (Physik) || Photon || False
+Spin || Photon || False
+Parität (Physik) || Photon || False
+Altgriechische Sprache || Photon (Begriffsklärung) || False
+Photon (Zeitschrift) || Photon (Begriffsklärung) || False
+Foton (Raumflugkörper) || Photon (Begriffsklärung) || False
+Troland || Photon (Begriffsklärung) || False
+Rocket Lab || Photon (Begriffsklärung) || False
+Beiqi Foton Motor || Photon (Begriffsklärung) || False
+Beijing Foton Daimler Automotive || Photon (Begriffsklärung) || False
+Subatomares Teilchen || Elementarteilchen || False
+Elementarteilchen (Begriffsklärung) || Elementarteilchen || False
+Matilda Boson || Boson || False
+Standardmodell der Teilchenphysik || Boson || False
+Skalar (Mathematik) || Boson || False
+Satyendranath Bose || Boson || False
+Bose-Einstein-Statistik || Boson || False
+Teilchenphysik || Eichboson || False
+Fundamentale Wechselwirkung || Eichboson || False
+Austauschteilchen || Eichboson || False
+Physikalische Größe || Masse (Physik) || False
+Formelzeichen || Masse (Physik) || False
+Größensystem || Masse (Physik) || False
+Einheitensystem || Masse (Physik) || False
+Maßeinheit || Masse (Physik) || False
+Dimension (Größensystem) || Masse (Physik) || False
+Internationales Einheitensystem || Masse (Physik) || False
+Kilogramm || Masse (Physik) || False
+Spin (Begriffsklärung) || Spin || False
+Higgs-Boson || Spin || False
+Fermion || Spin || False
+Elektron || Spin || False
+Neutrino || Spin || False
+Quark (Physik) || Spin || False
+Symmetrie (Physik) || Parität (Physik) || False
+Physikalisches System || Parität (Physik) || False
+Raumspiegelung || Parität (Physik) || False
+Internationale Standardnummer für fortlaufende Sammelwerke || Photon (Zeitschrift) || False
+Photovoltaik || Photon (Zeitschrift) || False
+Photovoltaikanlage || Photon (Zeitschrift) || False
+Russische Sprache || Foton (Raumflugkörper) || False
+Sowjetunion || Foton (Raumflugkörper) || False
+Wostok (Raumschiff) || Foton (Raumflugkörper) || False
+Einheitenzeichen || Troland || False
+Beleuchtungsstärke || Troland || False
+Internationales Einheitensystem || Troland || False
+Candela || Troland || False
+Rechtsform || Rocket Lab || False
+Gesellschaftsrecht der Vereinigten Staaten || Rocket Lab || False
+Internationale Wertpapierkennnummer || Rocket Lab || False
+Gründung (Recht) || Rocket Lab || False
+Sitz (juristische Person) || Rocket Lab || False
+Los Angeles || Rocket Lab || False
+Peking || Beiqi Foton Motor || False
+Volksrepublik China || Beiqi Foton Motor || False
+Unternehmensführung || Beiqi Foton Motor || False
+Wirtschaftszweig || Beiqi Foton Motor || False
+Atom || Subatomares Teilchen || False
+Teilchenphysik || Subatomares Teilchen || False
+Kernphysik || Subatomares Teilchen || False
+Internationale Organisation für Normung || Internationale Standardnummer für fortlaufende Sammelwerke || False
+Internationale Standard Klassifikation || Internationale Standardnummer für fortlaufende Sammelwerke || False
+Englische Sprache || Internationale Standardnummer für fortlaufende Sammelwerke || False
+Schriftenreihe || Internationale Standardnummer für fortlaufende Sammelwerke || False
+Pendant || Internationale Standardnummer für fortlaufende Sammelwerke || False
+Internationale Standardbuchnummer || Internationale Standardnummer für fortlaufende Sammelwerke || False
+Photovoltaik (Begriffsklärung) || Photovoltaik || False
+Fischen im Allgäu || Photovoltaik || False
+Erneuerbare Energien || Photovoltaik || False
+Windenergie || Photovoltaik || False
+Solarzelle || Photovoltaikanlage || False
+Sonnenstrahlung || Photovoltaikanlage || False
+Elektrische Energie || Photovoltaikanlage || False
+Sonnenwärmekraftwerk || Photovoltaikanlage || False
+Russisch (Begriffsklärung) || Russische Sprache || False
+Russland || Russische Sprache || False
+Gemeinschaft Unabhängiger Staaten || Russische Sprache || False
+Israel || Russische Sprache || False
+Deutschland || Russische Sprache || False
+Zweitsprache || Russische Sprache || False
+Sowjetunion (Zeitschrift) || Sowjetunion || False
+Flagge der Sowjetunion || Sowjetunion || False
+Staatswappen der Sowjetunion || Sowjetunion || False
+Wahlspruch || Sowjetunion || False
+Liste geflügelter Worte/P || Sowjetunion || False
+Amtssprache || Sowjetunion || False
+Physikalische Größe || Einheitenzeichen || False
+Phänomen || Einheitenzeichen || False
+Internationales Größensystem || Einheitenzeichen || False
+DIN 1301 || Einheitenzeichen || False
+Lux (Einheit) || Beleuchtungsstärke || False
+Iso || Internationale Organisation für Normung || False
+Genf || Internationale Organisation für Normung || False
+Schweiz || Internationale Organisation für Normung || False
+Datenbank || Internationale Standard Klassifikation || False
+Deutsches Institut für Normung || Internationale Standard Klassifikation || False
+ÖNORM || Internationale Standard Klassifikation || False
+Englisch (Begriffsklärung) || Englische Sprache || False
+Vereinigtes Königreich || Englische Sprache || False
+Kanada || Englische Sprache || False
+Australien || Englische Sprache || False
+Sprachwissenschaft || Schriftenreihe || False
+Cambridge University Press || Schriftenreihe || False
+Buchwissenschaft || Schriftenreihe || False
+Bibliografie || Schriftenreihe || False
+Albrecht Dürer || Pendant || False
+Diptychon || Pendant || False
+Museo del Prado || Pendant || False
+Liste der IPA-Zeichen || Pendant || False
+Latein || Pendant || False
+European Article Number || Internationale Standardbuchnummer || False
+Nummer || Internationale Standardbuchnummer || False
+Publikation || Internationale Standardbuchnummer || False
+Multimedia || Internationale Standardbuchnummer || False
+None || Photovoltaik (Begriffsklärung) || False
+Photovoltaik (Magazin) || Photovoltaik (Begriffsklärung) || False
+Land (Deutschland) || Fischen im Allgäu || False
+Bayern || Fischen im Allgäu || False
+Regierungsbezirk || Fischen im Allgäu || False
+Schwaben (Bayern) || Fischen im Allgäu || False

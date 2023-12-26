@@ -1,0 +1,71 @@
+Standardmodell der Teilchenphysik ||  || False
+Lambda-CDM-Modell || Standardmodell der Teilchenphysik || False
+Teilchenphysik || Standardmodell der Teilchenphysik || False
+Elementarteilchen || Standardmodell der Teilchenphysik || False
+Fundamentale Wechselwirkung || Standardmodell der Teilchenphysik || False
+Starke Wechselwirkung || Standardmodell der Teilchenphysik || False
+Quantenchromodynamik || Standardmodell der Teilchenphysik || False
+Schwache Wechselwirkung || Standardmodell der Teilchenphysik || False
+Beobachtbares Universum || Lambda-CDM-Modell || False
+Kosmologie || Lambda-CDM-Modell || False
+Urknall || Lambda-CDM-Modell || False
+Griechisches Alphabet || Lambda-CDM-Modell || False
+Kosmologische Konstante || Lambda-CDM-Modell || False
+Molekül || Teilchenphysik || False
+Atom || Teilchenphysik || False
+Hadron || Teilchenphysik || False
+Subatomares Teilchen || Elementarteilchen || False
+Elementarteilchen (Begriffsklärung) || Elementarteilchen || False
+Körper (Physik) || Fundamentale Wechselwirkung || False
+Feld (Physik) || Fundamentale Wechselwirkung || False
+Physikalisches System || Fundamentale Wechselwirkung || False
+Gravitation || Fundamentale Wechselwirkung || False
+Elektromagnetische Wechselwirkung || Fundamentale Wechselwirkung || False
+Fundamentale Wechselwirkung || Starke Wechselwirkung || False
+Gebundener Zustand || Starke Wechselwirkung || False
+Quark (Physik) || Starke Wechselwirkung || False
+Austauschteilchen || Starke Wechselwirkung || False
+Gluon || Starke Wechselwirkung || False
+Nukleon || Starke Wechselwirkung || False
+Atomkern || Starke Wechselwirkung || False
+QCD (Begriffsklärung) || Quantenchromodynamik || False
+Quantenfeldtheorie || Quantenchromodynamik || False
+Quantenelektrodynamik || Quantenchromodynamik || False
+Eichtheorie || Quantenchromodynamik || False
+Abelsche Gruppe || Quantenchromodynamik || False
+Betastrahlung || Schwache Wechselwirkung || False
+Neutron || Schwache Wechselwirkung || False
+Proton || Schwache Wechselwirkung || False
+Elektron || Schwache Wechselwirkung || False
+Neutrino || Schwache Wechselwirkung || False
+Logarithmische Darstellung || Beobachtbares Universum || False
+Planet || Beobachtbares Universum || False
+Kuipergürtel || Beobachtbares Universum || False
+Oortsche Wolke || Beobachtbares Universum || False
+Alpha Centauri || Beobachtbares Universum || False
+Perseusarm || Beobachtbares Universum || False
+Milchstraße || Beobachtbares Universum || False
+Hubble Ultra Deep Field || Kosmologie || False
+Altgriechische Sprache || Kosmologie || False
+Struktur des Kosmos || Kosmologie || False
+Astronomie || Kosmologie || False
+Astrophysik || Kosmologie || False
+Griechische Sprache || Griechisches Alphabet || False
+Protosinaitische Schrift || Griechisches Alphabet || False
+Phönizische Schrift || Griechisches Alphabet || False
+Armenisches Alphabet || Griechisches Alphabet || False
+Altitalisches Alphabet || Griechisches Alphabet || False
+Gotisches Alphabet || Griechisches Alphabet || False
+Glagolitische Schrift || Griechisches Alphabet || False
+Physikalische Konstante || Kosmologische Konstante || False
+Albert Einstein || Kosmologische Konstante || False
+Einsteinsche Feldgleichungen || Kosmologische Konstante || False
+Allgemeine Relativitätstheorie || Kosmologische Konstante || False
+Gravitation || Kosmologische Konstante || False
+Raumzeit || Kosmologische Konstante || False
+Internationales Einheitensystem || Kosmologische Konstante || False
+Remdesivir || Molekül || False
+Elektrisches Potential || Molekül || False
+Stäbchenmodell || Molekül || False
+Chemische Bindung || Molekül || False
+Liste der IPA-Zeichen || Molekül || False

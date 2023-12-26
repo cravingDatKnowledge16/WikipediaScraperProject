@@ -32,6 +32,7 @@ import varname as vn
 import plotly.express as px
 import curses as cur
 import timeit
+import pandas as pd
 # import consolemenu
 
 
@@ -64,7 +65,7 @@ class ScrapeLinks:
         return len(re.findall(r"\d+",text))
         
         
-    def scrape(self, layerDepth = None, maxReadLinks = None, maxLinksPerLay = None, constSave = True, fileData = None):
+    def scrape(self, layerDepth = None, maxURLsPerLay = None, constSave = True, fileData = None):
         #scrapes a given link recursively, if the layerDepth is not defined as an integer in the parameter, the link will be scraped, until the next layer in the structure has no more elements
         startTime = time.perf_counter()
     
@@ -89,7 +90,7 @@ class ScrapeLinks:
         screen.clear()
         screen.addstr(0,0,"".rjust(100,"-"))
         screen.addstr(1,0,f"Scraping of '{self.startURL}' at {datetime.datetime.now()} initiated...")
-        screen.addstr(2,0,f"layerDepth: {layerDepth}, maxReadLinks: {maxReadLinks}, maxLinksPerLay: {maxLinksPerLay}")
+        screen.addstr(2,0,f"layerDepth: {layerDepth}, maxURLsPerLay: {maxURLsPerLay}")
         screenBuffer = 4
         # initiation of important variables
         self.isScraped = True
@@ -101,23 +102,23 @@ class ScrapeLinks:
         }
         layerCondition = 1 if layerDepth >= 0 else 0
         # initiation of constant saving
-        if (type(fileData) == dict):
-            fileData["givenName"] = fileData["givenName"] if f"{os.path.dirname(__file__)}{''}" else ''
-            pass
-        if(constSave):
-            fileName = str(datetime.datetime.now()).replace(":","_")
-            file = open(f"{os.path.dirname(__file__)}/results/{fileName}.txt","a")
+        # if (type(fileData) == dict):
+            # fileData["givenName"] = fileData["givenName"] if f"{os.path.dirname(__file__)}{''}" else ''
+            # pass
             
         #open and access the wanted Wikipedia Article
         currOpenedArticle = request.urlopen(self.startURL,context=ssl._create_unverified_context())
         wikipediaArticleHTML = BeautifulSoup(currOpenedArticle, "html.parser")
         #create and setup the dictionary
-        firstEntryArticleTitle = wikipediaArticleHTML.find(class_="mw-page-title-main").text
-        firstEntryDescImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
-        firstEntryDescTxt = wikipediaArticleHTML.find(class_='mw-parser-output').p.text
-        firstEntry = dict(URL = self.startURL ,title=firstEntryArticleTitle,img=firstEntryDescImg,txt=firstEntryDescTxt)
+        firstTitle = wikipediaArticleHTML.find(class_="mw-page-title-main").text
+        firstImg = f"https:{wikipediaArticleHTML.find(class_='mw-file-element').get('src')}"
+        firstText = wikipediaArticleHTML.find(class_='mw-parser-output').p.text
+        firstEntry = dict(URL = self.startURL ,title=firstTitle,img=firstImg,txt=firstText)
         mainDict["0"] = firstEntry
-        file.write(f"0 : {firstEntry}\n")
+        if(constSave):
+            fileName = str(datetime.datetime.now()).replace(":","_")
+            file = open(f"{os.path.dirname(__file__)}/results/{fileName}.txt","a")
+            file.write(f"0 : {firstEntry}\n")
         # initiate scraping
         layer = 0
         processSpeed = 0
@@ -126,6 +127,8 @@ class ScrapeLinks:
             #get items of current layer
             mainDictItems = [list(item) for item    in list(mainDict.items())]
             currLayItems = [item for item in mainDictItems if self._getNumAmount(item[0]) == layer+1]
+            maxURLsPerLay = len(currLayItems) if type(maxURLsPerLay) is not type(1) else maxURLsPerLay
+            currLayItems = currLayItems[:maxURLsPerLay]
             if(len(currLayItems) == 0):
                 break
             layerItemCounter = 1
@@ -142,12 +145,11 @@ class ScrapeLinks:
                 currWikiArticle = BeautifulSoup(currOpenedArticle, "html.parser")
                 nextURLContainer = currWikiArticle.find(class_="mw-parser-output")
                 nextLay = [iterURL["href"] for iterURL in nextURLContainer.find_all("a",href=True)]
-                if(type(maxReadLinks) is not type(1)):
-                    maxReadLinks = len(nextLay)
+                maxURLsPerLay = len(nextLay) if type(maxURLsPerLay) is not type(1) else maxURLsPerLay
                 nextElIndex = 0
                 realNextElIndex = 0
                 unWantedURLs = 0
-                nextLay = nextLay[:maxReadLinks]
+                nextLay = nextLay[:maxURLsPerLay]
                 doAppend = True
                 URLsubdir = ""
                 for nextURL in nextLay:
@@ -267,22 +269,37 @@ class ScrapeLinks:
         keysList = [item[0] for item in self.resultItems]
         pxElements = [item[1]["title"] for item in self.resultItems]
         pxParents = [""]
-        pxParents[1:] = [self.resultDict[(lambda i : re.sub(r'(\,\d+|\d+)$','',i))(item[0])]["title"] for item in self.resultItems[1:]]
+        pxParents[1:] = [self.resultDict[re.sub(r'(\,\d+|\d+)$', '', item[0])]["title"] for item in self.resultItems[1:] if item ]
         pxValues = [1 for _ in self.resultItems]
         dbPrint(pxElements,len(pxElements),pxParents,len(pxParents))
+        data = {
+            "elements":pxElements,
+            "parents":pxParents
+        }
+        DF = pd.DataFrame(data)
+        with open(f"{os.path.dirname(__file__)}/results/plotCheck{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
+            for ind in range(len(pxElements)):
+                file.write(f"{pxElements[ind]} || {pxParents[ind]} || {pxElements[ind] == pxParents[ind]}\n")
+        for elInd in range(len(pxElements)):
+            if (pxElements[elInd] == pxParents[elInd]):
+                print(f"DUPL at {elInd}, {pxElements[elInd]} || {pxParents[elInd]}") 
+                break
         pxData= dict(
             el = pxElements,
             par = pxParents,
-            #val = pxValues        
+            val = pxValues        
         )
         fig = px.sunburst(
             pxData,
             names="el",
             parents="par",
-            #values="val"
+            values="val"
             
         )
         fig.show()
+        with open(f"{os.path.dirname(__file__)}/results/plotInfo{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
+            file.write(str(fig))
+        return fig
 
 def dbPrint(*values):
     for itemIndex in range(len(values)):    
@@ -291,9 +308,9 @@ def dbPrint(*values):
 
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
-# z = test.scrape(10,constSave=True)
-# test.getChildren(1)
-# test.plotlify() 
+z = test.scrape(4,maxURLsPerLay=8,constSave=True)
+y = test.plotlify()
+dbPrint(y)
 os.abort()
 
 dbPrint(test.returnedValue)

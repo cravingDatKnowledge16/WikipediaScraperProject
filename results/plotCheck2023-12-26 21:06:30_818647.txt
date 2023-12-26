@@ -1,0 +1,66 @@
+Photon ||  || False
+Photon (Begriffsklärung) || Photon || False
+Elementarteilchen || Photon || False
+Boson || Photon || False
+Eichboson || Photon || False
+Elektrische Ladung || Photon || False
+Masse (Physik) || Photon || False
+Spin || Photon || False
+Parität (Physik) || Photon || False
+Altgriechische Sprache || Photon (Begriffsklärung) || False
+Photon (Zeitschrift) || Photon (Begriffsklärung) || False
+Foton (Raumflugkörper) || Photon (Begriffsklärung) || False
+Troland || Photon (Begriffsklärung) || False
+Rocket Lab || Photon (Begriffsklärung) || False
+Beiqi Foton Motor || Photon (Begriffsklärung) || False
+Beijing Foton Daimler Automotive || Photon (Begriffsklärung) || False
+Subatomares Teilchen || Elementarteilchen || False
+Elementarteilchen (Begriffsklärung) || Elementarteilchen || False
+Matilda Boson || Boson || False
+Standardmodell der Teilchenphysik || Boson || False
+Skalar (Mathematik) || Boson || False
+Satyendranath Bose || Boson || False
+Bose-Einstein-Statistik || Boson || False
+Teilchenphysik || Eichboson || False
+Fundamentale Wechselwirkung || Eichboson || False
+Austauschteilchen || Eichboson || False
+Physikalische Größe || Masse (Physik) || False
+Formelzeichen || Masse (Physik) || False
+Größensystem || Masse (Physik) || False
+Einheitensystem || Masse (Physik) || False
+Maßeinheit || Masse (Physik) || False
+Dimension (Größensystem) || Masse (Physik) || False
+Internationales Einheitensystem || Masse (Physik) || False
+Kilogramm || Masse (Physik) || False
+Spin (Begriffsklärung) || Spin || False
+Higgs-Boson || Spin || False
+Fermion || Spin || False
+Elektron || Spin || False
+Neutrino || Spin || False
+Quark (Physik) || Spin || False
+Symmetrie (Physik) || Parität (Physik) || False
+Physikalisches System || Parität (Physik) || False
+Raumspiegelung || Parität (Physik) || False
+Internationale Standardnummer für fortlaufende Sammelwerke || Photon (Zeitschrift) || False
+Photovoltaik || Photon (Zeitschrift) || False
+Photovoltaikanlage || Photon (Zeitschrift) || False
+Russische Sprache || Foton (Raumflugkörper) || False
+Sowjetunion || Foton (Raumflugkörper) || False
+Wostok (Raumschiff) || Foton (Raumflugkörper) || False
+Einheitenzeichen || Troland || False
+Beleuchtungsstärke || Troland || False
+Internationales Einheitensystem || Troland || False
+Candela || Troland || False
+Rechtsform || Rocket Lab || False
+Gesellschaftsrecht der Vereinigten Staaten || Rocket Lab || False
+Internationale Wertpapierkennnummer || Rocket Lab || False
+Gründung (Recht) || Rocket Lab || False
+Sitz (juristische Person) || Rocket Lab || False
+Los Angeles || Rocket Lab || False
+Peking || Beiqi Foton Motor || False
+Volksrepublik China || Beiqi Foton Motor || False
+Unternehmensführung || Beiqi Foton Motor || False
+Wirtschaftszweig || Beiqi Foton Motor || False
+Atom || Subatomares Teilchen || False
+Teilchenphysik || Subatomares Teilchen || False
+Kernphysik || Subatomares Teilchen || False
