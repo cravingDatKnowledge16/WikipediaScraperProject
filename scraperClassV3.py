@@ -30,6 +30,7 @@ import string as st
 import json
 import varname as vn
 import plotly.express as px
+import plotly.graph_objects as go
 import curses as cur
 import timeit
 import pandas as pd
@@ -263,6 +264,18 @@ class ScrapeLinks:
         elif(fileType == "json"):
             file.write(json.dumps(self.resultDict))
         file.close()
+        return fullFilePath
+    
+    @staticmethod
+    def read(filePath,inst=None):
+        # if isinstance(inst, ScrapeLinks):
+            
+        with open(filePath,"r") as file:
+            print(file.__)
+            if (".json" in file.__name__):
+                fileContent = file.read()
+        return fileContent
+        pass
         
     def plotlify(self):
         self._isObjectScraped()
@@ -271,19 +284,12 @@ class ScrapeLinks:
         pxParents = [""]
         pxParents[1:] = [self.resultDict[re.sub(r'(\,\d+|\d+)$', '', item[0])]["title"] for item in self.resultItems[1:] if item ]
         pxValues = [1 for _ in self.resultItems]
+        """
         dbPrint(pxElements,len(pxElements),pxParents,len(pxParents))
         data = {
             "elements":pxElements,
             "parents":pxParents
         }
-        DF = pd.DataFrame(data)
-        with open(f"{os.path.dirname(__file__)}/results/plotCheck{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
-            for ind in range(len(pxElements)):
-                file.write(f"{pxElements[ind]} || {pxParents[ind]} || {pxElements[ind] == pxParents[ind]}\n")
-        for elInd in range(len(pxElements)):
-            if (pxElements[elInd] == pxParents[elInd]):
-                print(f"DUPL at {elInd}, {pxElements[elInd]} || {pxParents[elInd]}") 
-                break
         pxData= dict(
             el = pxElements,
             par = pxParents,
@@ -294,8 +300,25 @@ class ScrapeLinks:
             names="el",
             parents="par",
             values="val"
-            
         )
+        """   
+        fig = go.Figure()
+        fig.add_trace(go.Sunburst(
+            labels=pxElements,
+            parents=pxParents,
+            values=pxValues,
+            branchvalues='total',
+            # hovertemplate='<b>%{label} </b> <br> Sales: %{value}<br> Success rate: %{color:.2f}',
+            name=''
+        ))
+        # DF = pd.DataFrame(data)
+        with open(f"{os.path.dirname(__file__)}/results/plotCheck{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
+            for ind in range(len(pxElements)):
+                file.write(f"{pxElements[ind]} || {pxParents[ind]} || {pxElements[ind] == pxParents[ind]}\n")
+        for elInd in range(len(pxElements)):
+            if (pxElements[elInd] == pxParents[elInd]):
+                print(f"DUPL at {elInd}, {pxElements[elInd]} || {pxParents[elInd]}") 
+                break
         fig.show()
         with open(f"{os.path.dirname(__file__)}/results/plotInfo{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
             file.write(str(fig))
@@ -309,6 +332,9 @@ def dbPrint(*values):
         
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
 z = test.scrape(4,maxURLsPerLay=8,constSave=True)
+r = test.save("READ_TEST")
+i = test.read(r)
+print(i)
 y = test.plotlify()
 dbPrint(y)
 os.abort()
