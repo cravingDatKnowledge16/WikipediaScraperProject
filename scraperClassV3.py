@@ -31,9 +31,12 @@ import json
 import varname as vn
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import curses as cur
 import timeit
 import pandas as pd
+
+
 # import consolemenu
 
 
@@ -270,16 +273,14 @@ class ScrapeLinks:
     def read(filePath,inst=None):
         # if isinstance(inst, ScrapeLinks):
             
-        with open(filePath,"r") as file:
-            print(file.__)
-            if (".json" in file.__name__):
-                fileContent = file.read()
+        with open(filePath,"r"):
+            if (".json" in os.path.basename(filePath)):
+                fileContent = filePath.read()
         return fileContent
         pass
         
     def plotlify(self):
         self._isObjectScraped()
-        keysList = [item[0] for item in self.resultItems]
         pxElements = [item[1]["title"] for item in self.resultItems]
         pxParents = [""]
         pxParents[1:] = [self.resultDict[re.sub(r'(\,\d+|\d+)$', '', item[0])]["title"] for item in self.resultItems[1:] if item ]
@@ -302,6 +303,8 @@ class ScrapeLinks:
             values="val"
         )
         """   
+        # go.layout.legend.sys.maxsize = 4000
+        # go.layout.legend.sys.maxunicode = 4000
         fig = go.Figure()
         fig.add_trace(go.Sunburst(
             labels=pxElements,
@@ -309,7 +312,8 @@ class ScrapeLinks:
             values=pxValues,
             branchvalues='total',
             # hovertemplate='<b>%{label} </b> <br> Sales: %{value}<br> Success rate: %{color:.2f}',
-            name=''
+            name='',
+            
         ))
         # DF = pd.DataFrame(data)
         with open(f"{os.path.dirname(__file__)}/results/plotCheck{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
@@ -319,7 +323,7 @@ class ScrapeLinks:
             if (pxElements[elInd] == pxParents[elInd]):
                 print(f"DUPL at {elInd}, {pxElements[elInd]} || {pxParents[elInd]}") 
                 break
-        fig.show()
+        pio.show(fig)
         with open(f"{os.path.dirname(__file__)}/results/plotInfo{str(datetime.datetime.now()).replace('.', '_')}.txt","a") as file:
             file.write(str(fig))
         return fig
@@ -333,8 +337,8 @@ def dbPrint(*values):
 test = ScrapeLinks("https://de.wikipedia.org/wiki/Photon")
 z = test.scrape(4,maxURLsPerLay=8,constSave=True)
 r = test.save("READ_TEST")
-i = test.read(r)
-print(i)
+# i = test.read(r)
+# print(i)
 y = test.plotlify()
 dbPrint(y)
 os.abort()
